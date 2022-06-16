@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+   <!-- Stuff needed for Chart.js -->
+
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.3/moment.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.0/chartjs-adapter-moment.min.js"></script> 
+
+    <title>DeepSpan Testbed App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+  </head>
+  
+  <body style="background-color: #F1F1F1;" onload="initializePage()">
+    <div class="container" >
+      
+      <br>
+      <div class="card">
+        <div class="card-body">
+              <div class="row">
+                <div class="col">
+                  <select name="user-select" id="user-select" style="width: 150px;">
+                    <option value="1462201a-a19b-40e1-6b13-a5f7cc94b50a">Bill Mitchell</option>
+                    <option value="9e3ae372-a4dd-419e-54df-18a195f7e0fb">Will Poole</option>
+                    <option value="ecc6f2ca-16e2-4b7c-629a-01d368a379ff">Jim Minarik</option>
+                    <option value="890bcb80-f0d9-4fa0-54f6-6227addbb5ee">Josh Klinefelter</option>
+                    <option value="c1ce0a35-ed02-47ce-49f6-e667e9bce870">Dan Levitan</option>
+                    <option value="782333c1-4ca0-42f8-5faf-5ce2004394fa">John Budin</option>
+                    <option value="64743254-8ee5-48d1-4ba4-f30fcfc0a1d5">Kate Linn</option>
+                    <option value="0ea4ad9d-ba76-41e0-6e83-634d43623f4e">Kiley Williams</option>
+                    <option value="311ea04a-3e64-4e45-4b15-554db9e4c026">Mike Foley</option>
+                    <option value="22bcbef4-6fe4-4bd0-64e3-2f1cf6bf0393">Will Mitchell</option>
+                    <option value="028730d6-27dc-407b-51b4-8c5fe8a47f20">Jack Phillips</option>
+                    <option value="Jack">Other...</option>
+
+                  </select>                
+<!--                 <input type="text" id="myUserToken" value="" size="38">                      --> 
+                </div>
+                <div class="col">
+                  <input type="date" id="myDate" value="2022-02-12">
+                  <button type="button" class="btn btn-secondary"  onclick="findLatest()">Find Last</button>
+                  <div id="lastSleep-amt"></div>
+                </div>
+                <div class="col">
+                  <button type="button" class="btn btn-primary" style="float: right;" onclick="showSleep()">Show Sleep</button>
+                </div>
+              </div>
+          </div>
+    </div>
+    <br>
+    <div id="sleep-data">
+      <div class="card">
+        <div class="card-body">
+<!--        <h3 style="text-align:center">DeepSleep AppleWatch</h3>             -->  
+          <div id="chart-area1">  </div>
+          <div id="chart-area2">  </div>
+          <div id="chart-area3">  </div>
+        </div>
+      </div>
+
+      <br>
+      <div class="card">
+        <div class="card-body">
+<!--          <h3 style="text-align:center">Oura Ring</h3>   -->
+          <div id="chart-area4">  </div>
+          <div id="chart-area5">  </div>
+          <div id="chart-area6">  </div>
+          <div id="chart-area7">  </div>
+        </div>
+      </div>      
+    </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+    
+    <!-- Code for the main program  -->
+    <script src="sleepcharts.js"></script>
+    <script src="main.js"></script>
+  </body>
+</html>
