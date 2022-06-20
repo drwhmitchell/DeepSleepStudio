@@ -134,7 +134,7 @@ console.log("CreateBioChart with Start/End=" + new Date(startTime).toLocaleTimeS
 //console.log("AE Data =" + JSON.stringify(aeData));
 
 var newChartElID = "sleepBioChart" + Math.random()*10;
-  const aeMax = 1.26;     // scales the ActiveEnergy
+  const aeMax = 3.0;     // scales the ActiveEnergy
  // const aeMax = 10;     // scales the ActiveEnergy
   const hrMin = 50;     // scales the ActiveEnergy
   const hrMax = 90;     // scales the ActiveEnergy
@@ -245,10 +245,10 @@ var newChartElID = "sleepBioChart" + Math.random()*10;
 
 // Dynamically creates a chart sleep data (Hypno, Asleep) added on the to the DOM element passed in
 // Returns a ref to the chart object so that it can be cleaned up
-function CreateSleepRecordsChart(chartContainerID, titleText, startTime, endTime, asleepData, inBedData) {
+function CreateSleepRecordsChart(chartContainerID, titleText, startTime, endTime, inBedData, asleepData) {
 console.log("CreateSleepRecordChart with Start/End=" + startTime + "-" + endTime);
-console.log("CreateSleepRecordChart with AsleepData=" + JSON.stringify(asleepData));
 console.log("CreateSleepRecordChart with InBedData=" + JSON.stringify(inBedData));
+console.log("CreateSleepRecordChart with AsleepData=" + JSON.stringify(asleepData));
 
 
   var newChartElID = "sleepRecordsChart" + Math.random()*10;
@@ -261,6 +261,25 @@ console.log("CreateSleepRecordChart with InBedData=" + JSON.stringify(inBedData)
   newHTMLbuf += " style='height: 150px'>";
   newHTMLbuf +=   "<canvas id='" + newChartElID + "'></canvas>"; 
   newHTMLbuf += "</div>";
+
+ // Tack on a line of stats
+ newHTMLbuf += "<div class='text-center' style='background-color: #F5F4F8'>";
+ newHTMLbuf += "<small># InBed Records: " + ((inBedData.length)/2 - 1);  // to compensate for the doubled # of points and the added endpoint
+ newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp# Asleep Records: " + asleepData.length;
+// Display InBed Rec Data
+ //newHTMLbuf += "<br>"
+ //inBedData.forEach((rec, i) => { if (i>0 && i<inBedData.length-1) newHTMLbuf += "[" + new Date(rec.x).toLocaleTimeString() + "] "});
+ // Display Asleep Rec Data
+ //newHTMLbuf += "<br>"
+ //asleepData.forEach((rec, i) => { newHTMLbuf += "[" + new Date(rec.startdate).toLocaleTimeString() + " - " + new Date(rec.enddate).toLocaleTimeString() + "] "});
+
+ newHTMLbuf += "</small></div><br>";
+
+ // Marshall the asleepData records
+ var newSleepData = [{x: startTime, y: 2}];   // Seed the new Marshalled Sleep Record array with an "awake" point
+ asleepData.forEach((rec, i) => { newSleepData.push({x: rec.startdate, y: 1}); 
+                                  newSleepData.push({x: rec.enddate, y: 2}) });
+ newSleepData.push({x: endTime, y: 2});   // Postfix the Marshalled Sleep Record array with an "awake" point
 
   chartsHTML.innerHTML += newHTMLbuf;   // Append the new HTML
   console.log("Creating new Chart='" + newChartElID + "'");
@@ -276,7 +295,7 @@ console.log("CreateSleepRecordChart with InBedData=" + JSON.stringify(inBedData)
             borderWidth : 3,
             fill: false,
             radius: 0,
-            data : asleepData,
+            data : newSleepData,
             animations: {
               tension: {
                 duration: 1000,

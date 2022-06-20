@@ -17,10 +17,37 @@ var c5 = CreateBioChart('chart-area5', 'Biometrics', startTime, endTime, testHRD
 var c6 = CreateSleepRecordsChart('chart-area6', 'Sleep Records', startTime, endTime, testSRData, testInbedData)
 */
 
+// Password stuff
+function password_show_hide() {
+  var x = document.getElementById("password");
+  var show_eye = document.getElementById("show_eye");
+  var hide_eye = document.getElementById("hide_eye");
+  hide_eye.classList.remove("d-none");
+  if (x.type === "password") {
+    x.type = "text";
+    show_eye.style.display = "none";
+    hide_eye.style.display = "block";
+  } else {
+    x.type = "password";
+    show_eye.style.display = "block";
+    hide_eye.style.display = "none";
+  }
+}
+
+function password_validate() {
+  // hide the authentication dialog and display the control panel
+  console.log("Password-validate()");
+
+  gIsAuthorized = true;
+  initializePage();
+}
+
+
 
 // gCharts keeps track of the list of charts created so we can destroy them 
 var gCharts = []; 
 var gViewingUTCOffset = moment().utcOffset();
+var gIsAuthorized = false;    // start out unauthorized
 
 // Preset the Date Picker to today's date
 const [currentDate, currentTime] = formatDate(new Date()).split(' ');
@@ -29,10 +56,22 @@ dateInput.value = currentDate;
 
 // On Page Load function
 function initializePage() {
-  // Hide chart areas
-  var sleepDataEl = document.getElementById("sleep-data");
-  console.log("Sleep Data DIV state='" + sleepDataEl.style.display + "'");
-  sleepDataEl.style.display = "none";
+console.log("initializePage()");
+  var controlPanelEl = document.getElementById("control-panel"); 
+  var resultsPanelEl = document.getElementById("sleep-data");  
+  var securityEl = document.getElementById("security");  
+
+  // If we are Authorized, display just the control panel
+  if (gIsAuthorized) {
+    controlPanelEl.style.display = "block";
+    securityEl.style.display = "none";  // Hide login panel
+    resultsPanelEl.style.display = "none";   // Hide results panel until we use control panel to generate some
+  } else {
+    // We're not Authorized yet so just show the security panel and hide the rest
+    securityEl.style.display = "block";
+    controlPanelEl.style.display = "none";
+    resultsPanelEl.style.display = "none";
+  }
 }
 
 // Find the most recent night of sleep data
