@@ -17,6 +17,39 @@ var c5 = CreateBioChart('chart-area5', 'Biometrics', startTime, endTime, testHRD
 var c6 = CreateSleepRecordsChart('chart-area6', 'Sleep Records', startTime, endTime, testSRData, testInbedData)
 */
 
+var testHypno = [{"x":"Wake","y":[1657082165000,1657082224000]},
+                {"x":"Wake","y":[1657082623000,1657082744000]},
+                {"x":"Wake","y":[1657092405000,1657092410000]},
+                {"x":"Wake","y":[1657092470000,1657092599000]},
+                {"x":"Wake","y":[1657092650000,1657092860000]},
+                {"x":"Wake","y":[1657103138000,1657103700000]},
+                {"x":"REM","y":[1657095967000,1657097337000]},
+                {"x":"REM","y":[1657098436000,1657098830000]},
+                {"x":"REM","y":[1657100939000,1657101375000]},
+                {"x":"REM","y":[1657108554000,1657109095000]},
+                {"x":"REM","y":[1657110802000,1657115191000]},
+                {"x":"Light","y":[1657082224000,1657082442000]},
+                {"x":"Light","y":[1657082744000,1657082863000]},
+                {"x":"Light","y":[1657088170000,1657092405000]},
+                {"x":"Light","y":[1657092410000,1657092470000]},
+                {"x":"Light","y":[1657092599000,1657092650000]},
+                {"x":"Light","y":[1657092860000,1657094889000]},
+                {"x":"Light","y":[1657095562000,1657095967000]},
+                {"x":"Light","y":[1657097337000,1657098436000]},
+                {"x":"Light","y":[1657098830000,1657100939000]},
+                {"x":"Light","y":[1657101375000,1657103138000]},
+                {"x":"Light","y":[1657103700000,1657103769000]},
+                {"x":"Light","y":[1657104242000,1657104908000]},
+                {"x":"Light","y":[1657105233000,1657108554000]},
+                {"x":"Light","y":[1657109095000,1657110802000]},
+                {"x":"Deep","y":[1657082442000,1657082623000]},
+                {"x":"Deep","y":[1657082863000,1657088170000]},
+                {"x":"Deep","y":[1657094889000,1657095562000]},
+                {"x":"Deep","y":[1657103769000,1657104242000]},
+                {"x":"Deep","y":[1657104908000,1657105233000]}];
+
+
+
 // Password stuff
 function password_show_hide() {
   var x = document.getElementById("password");
@@ -74,13 +107,46 @@ console.log("initializePage()");
   }
 }
 
+// Find the all 4 models of a Whack2 for a certain date offset
+async function findWhack2Models() {
+  // First grab the current user token
+  var userName = document.getElementById('user-select');
+  console.log("Selected User Token =" + userName.value);
+  DST = userName.value;
+  var day = 0;
+  var hypnoMeta;
+
+  // Now try each date offset starting with 0 until we hit a date with a sleep 
+  for (i=0; i<4; i++) {
+    hypnoMeta = await fetchWhack2Data(DST, i, day);
+    console.log('Whack2(' + i + ',' + day + ')=' + '' + JSON.stringify(hypnoMeta));
+  }
+}
+
+
 // Find the most recent night of sleep data
 async function findLatest() {
   // First grab the current user token
   var userName = document.getElementById('user-select');
+  var resultsPanelEl = document.getElementById("sleep-data");  
+
+  initializePage();
+  cleanUpAllCharts();
+
   console.log("Selected User Token =" + userName.value)
   DST = userName.value;
+
+  // Show the progress...
+
+
+  lastSleepDiv = document.getElementById("lastSleep-amt");
+  lastSleepDiv.innerHTML = "";
+  lastSleepDiv.innerHTML = "Last synced sleep: ";
+  resultsPanelEl.style.display = "block";   
+  lastSleepDiv.style.display = "block";
+
   // Now try each date offset starting with 0 until we hit a date with a sleep 
+
   var hypnoMeta; 
   var healthKitRecs;
   const maxSleepOffset = 90;
@@ -92,11 +158,18 @@ async function findLatest() {
       lastSleepOffset = i;
       break;
     }
+    lastSleepDiv.innerHTML += ".";
     console.log("Find last Offset #" + i);
   }
   console.log("LastSleepOffset = " + lastSleepOffset);
-  lastSleepDiv = document.getElementById("lastSleep-amt");
-  lastSleepDiv.innerHTML = " (" + lastSleepOffset + " days)"
+
+  if (lastSleepOffset == 0)
+    lastSleepDiv.innerHTML += "Last Night";
+  else 
+    lastSleepDiv.innerHTML +=  lastSleepOffset + " days ago."
+
+
+
   return (lastSleepOffset);
 }
 
@@ -124,8 +197,31 @@ function showSleep() {
 
   // -14400000
 
+
+  initializePage();
+
+
   mainProgram(dateDelta, DST);
 }
+
+
+function cleanUpAllCharts() {
+  console.log("CleanUpAllCharts with gChartCount =" + gChartCount);
+  // Nuke any live charts because we're about to create more....
+  gCharts.forEach(chart => { if (chart) chart.destroy() });
+
+  var chartHTML;
+  // Also nuke any elements "innerHTML"
+  for (i=1; i<gChartCount+1; i++) {
+    chartHTML = document.getElementById("chart-area" + i);
+console.log("Nuking InnnerHTML of Chart#" + i);
+    chartHTML.innerHTML = "";
+  }
+  gChartCount = 1;
+  gCharts = [];
+}
+
+
 
 const gChartDiv = "chart-area";
 var gChartCount = 1;
@@ -138,25 +234,12 @@ async function mainProgram(dateOffset, token) {
   sleepDataEl.style.display = "block";
 
   const hypnoMeta = await fetchHypnoData(dateOffset, token);
-
-
-
   const heathKitRecs = await fetchHealthkitData(dateOffset, token);
 
   if (hypnoMeta) {
 
-    // Nuke any live charts because we're about to create more....
-    gCharts.forEach(chart => { if (chart) chart.destroy() });
-
-    var chartHTML;
-    // Also nuke any elements "innerHTML"
-    for (i=1; i<gChartCount; i++) {
-      chartHTML = document.getElementById(gChartDiv + i);
-console.log("Nuking InnnerHTML of Chart#" + i);
-      chartHTML.innerHTML = "";
-    }
-    gChartCount = 1;
-
+    cleanUpAllCharts();
+  
     // See what our time range is for all records
     var extents = findExtents(hypnoMeta);
 
@@ -318,6 +401,30 @@ console.log("NO HYPNO CHART, NO '" + source + "' Data");
     return null;
   } 
 }
+
+
+
+async function fetchWhack2Data(token, model, dayOffset) {
+  var dsData = null;  
+  console.log("fetchHypnoData()");
+
+  const res = await fetch('https://sleepnet.appspot.com/api/newwhack2/' + model + '/' + dayOffset, {
+      headers: {
+      Authorization: 'Bearer ' + token
+    }
+  })
+    .then (res => res.json())
+    .then(dataBack =>  { 
+       console.log("Fetching NewWhack2 Model=" + model + " Day=" + dayOffset + ": " + JSON.stringify(dataBack));
+                          if (dataBack) {
+                            dsData = dataBack;
+                          }
+                       });
+
+    return(dsData);
+}
+
+
 
 async function fetchHypnoData(dayOffset, token) {
       var dsData = null;  

@@ -43,7 +43,7 @@
               <div class="row">
                 <div class="col">
                   <select name="user-select" id="user-select" style="width: 150px;">
-                    <option value="1462201a-a19b-40e1-6b13-a5f7cc94b50a">Bill Mitchell</option>
+                    <option value="ef58867f-d43f-4f37-5a06-2768a0887f68">Bill Mitchell</option>
                     <option value="9e3ae372-a4dd-419e-54df-18a195f7e0fb">Will Poole</option>
                     <option value="ecc6f2ca-16e2-4b7c-629a-01d368a379ff">Jim Minarik</option>
                     <option value="890bcb80-f0d9-4fa0-54f6-6227addbb5ee">Josh Klinefelter</option>
@@ -58,38 +58,37 @@
 
                   </select>                
 <!--                 <input type="text" id="myUserToken" value="" size="38">                      --> 
-                </div>
-                <div class="col">
                   <input type="date" id="myDate" value="2022-02-12">
-                  <button type="button" class="btn btn-secondary"  onclick="findLatest()">Find Last</button>
-                  <div id="lastSleep-amt"></div>
                 </div>
                 <div class="col">
-                  <button type="button" class="btn btn-primary" style="float: right;" onclick="showSleep()">Show Sleep</button>
+                  <button type="button" class="btn btn-primary"  onclick="showSleep()">Show Sleep</button>
+                </div>
+                <div class="col">
+                  <button type="button" class="btn btn-secondary"  onclick="findLatest()">Find Last</button>
+                  <button type="button" class="btn btn-secondary"  onclick="findWhack2Models()">Compare</button>
+                  <button type="button" class="btn btn-secondary"  onclick="synthSleep()">Synth</button>
                 </div>
               </div>
           </div>
     </div>
     </div>
     <br>
+
+
+
     <div id="sleep-data">
       <div class="card">
         <div class="card-body">
-<!--        <h3 style="text-align:center">DeepSleep AppleWatch</h3>             -->  
+<!--        <h3 style="text-align:center">DeepSleep AppleWatch</h3>             -->
+<div id="lastSleep-amt"> </div>  
           <div id="chart-area1">  </div>
           <div id="chart-area2">  </div>
           <div id="chart-area3">  </div>
-        </div>
-      </div>
-
-      <br>
-      <div class="card">
-        <div class="card-body">
-<!--          <h3 style="text-align:center">Oura Ring</h3>   -->
           <div id="chart-area4">  </div>
           <div id="chart-area5">  </div>
           <div id="chart-area6">  </div>
           <div id="chart-area7">  </div>
+          <div id="chart-area8">  </div>
         </div>
       </div>      
     </div>
@@ -151,6 +150,7 @@
     
     <!-- Code for the main program  -->
     <script src="sleepcharts.js"></script>
+    <script src="synth.js"></script>
     <script src="main.js"></script>
   </body>
 </html>
