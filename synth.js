@@ -36,8 +36,28 @@ async function synthSleep() {
   sleepArch = SynthHypno(startTime, endTime, 20);
   console.log("Synthesized Hypno = " + sleepArch.hypno);
   gCharts.push(CreateHypnoChart(divEl, "Synthesized", startTime, endTime, sleepArch));
+  
+  var newSleepArch, warpIndex, sleepState;
 
-  return (testHypno);
+  sleepState = "Deep";
+  warpIndex = 5;
+  newSleepArch = WarpHypno(sleepArch, sleepState, 1, 5, warpIndex);
+  console.log("===>" + sleepState + "Warped Arch:" + JSON.stringify(newSleepArch));
+  gCharts.push(CreateHypnoChart("chart-area2", sleepState + "/" + warpIndex, startTime, endTime, newSleepArch));
+
+  sleepState = "REM";
+  warpIndex = 1;
+  newSleepArch = WarpHypno(sleepArch, sleepState, 1, 5, warpIndex);
+  console.log("===>" + sleepState + "Warped Arch:" + JSON.stringify(newSleepArch));
+  gCharts.push(CreateHypnoChart("chart-area3", sleepState + "/" + warpIndex, startTime, endTime, newSleepArch));
+
+  sleepState = "Wake";
+  warpIndex = 1;
+  newSleepArch = WarpHypno(sleepArch, sleepState, 1, 5, warpIndex);
+  console.log("===>" + sleepState + "Warped Arch:" + JSON.stringify(newSleepArch));
+  gCharts.push(CreateHypnoChart("chart-area4", sleepState + "/" + warpIndex, startTime, endTime, newSleepArch));
+
+  return (newSleepArch);
 }
 
 function createSleepState(state, cycleNo, t, age) {
@@ -100,6 +120,33 @@ function SynthHypno(startTime, endTime, age) {
   sleepArch.hypno = JSON.stringify(h);
 
   return(sleepArch)
+}
+
+// function WarpHypno(sleepArch, sleepState, scaleLow, scaleHigh, value) when applied, returns a new Hypno that is “warped” to reflect a bias in the “sleepState”.
+// For example, WarpHypno(h1, “Deep”, 1, 5, 5) corresponds to a survey result of “How Refreseded Do you Feel” and selecting “5” on a 1-5 scale.
+function WarpHypno(sleepArch, sleepState, scaleLow, scaleHigh, value) {
+console.log("Warping Hypno:" + JSON.stringify(sleepArch));
+
+  const warpScalePercent = 0.2;
+  var warpFactor = 1 + (value - (scaleHigh + scaleLow)/2) * warpScalePercent;  // the multiplier for the warp adjustment
+  var stateWidth;
+  const sa = JSON.parse(sleepArch.hypno);
+  const numStates = sa.length;
+  console.log("Num hypno states =" + numStates);
+  for (i=0; i<numStates; i++) {
+console.log("i:" + i);
+    stateWidth = sa[i].y[1] - sa[i].y[0];
+    // if this is one of our warp states, then warp it...
+    if (sa[i].x == sleepState) {
+console.log("Found a " + sleepState + " state!");
+        sa[i].y[1] = sa[i].y[0] + stateWidth * warpFactor;
+        if (i < numStates-1) 
+          sa[i+1].y[0] = sa[i].y[1];  //increase/decrease the next state to meet it
+    }
+  }
+  const newSA = {hypno: JSON.stringify(sa)};
+  console.log("===>Warpend Hypno:" + newSA);
+  return newSA;
 }
 
 

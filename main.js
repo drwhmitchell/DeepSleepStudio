@@ -237,6 +237,7 @@ async function mainProgram(dateOffset, token) {
   const heathKitRecs = await fetchHealthkitData(dateOffset, token);
 
   if (hypnoMeta) {
+    console.log("***>Successfully Fetched a Hypno: " + JSON.stringify(hypnoMeta));
 
     cleanUpAllCharts();
   
