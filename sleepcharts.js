@@ -20,6 +20,8 @@ function CreateHypnoChart(chartContainerID, titleText, startTime, endTime, sleep
   newHTMLbuf +=   "<canvas id='" + newChartElID + "'></canvas>"; 
   newHTMLbuf += "</div>";
 
+
+
   // Tack on a line of stats
   newHTMLbuf += "<div class='text-center' style='background-color: #F5F4F8'>";
   newHTMLbuf += "<small>SCORE " + Math.round(sleepArch.score);

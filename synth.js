@@ -30,8 +30,8 @@ async function synthSleep() {
 
   // Synthesize a Sleep Architecture for 10 last night to 6:30 this morning for a 60 male
   const divEl = "chart-area1";
-  const startTime = LastNight(22, 30);
-  const endTime = ThisMorning(7, 15);
+  const startTime = LastNight(23, 0);
+  const endTime = ThisMorning(7, 0);
 
   sleepArch = SynthHypno(startTime, endTime, 20);
   console.log("Synthesized Hypno = " + sleepArch.hypno);
@@ -60,6 +60,16 @@ async function synthSleep() {
   return (newSleepArch);
 }
 
+function CountStateTime(state, h) {
+  var total = 0;
+  h.forEach(element => {
+    if (element.x == state) 
+      total += (element.y[1] - element.y[0]);
+  });
+  return(total);
+}
+
+
 function createSleepState(state, cycleNo, t, age) {
   const millisecToMin = 60000;
   var start, end;
@@ -72,7 +82,7 @@ function createSleepState(state, cycleNo, t, age) {
         break;
     case "Light" :
         start = t;
-        end = t + (millisecToMin * (20 + getRandomInt(5)));
+        end = t + (millisecToMin * (40 + getRandomInt(5)));
         break;
     case "Deep" :
         start = t;
@@ -81,7 +91,7 @@ function createSleepState(state, cycleNo, t, age) {
         break;
     case "REM" :
         start = t;
-        end = t + (millisecToMin * ((cycleNo*15) + getRandomInt(5)));
+        end = t + (millisecToMin * ((cycleNo*10) + getRandomInt(5)));
         break;
   }
   return({x: state, y: [start, end]});
@@ -106,18 +116,29 @@ function SynthHypno(startTime, endTime, age) {
     for (phase=0; phase < cycleStates.length; phase++) {
       sleepState = createSleepState(cycleStates[phase], cycleNo, now, age); 
       now = sleepState.y[1];
-      h.push(sleepState);
-      if (sleepState.y[2] >= endTime) {
-        sleepState.y[2] = endTime; 
-        sleepState.x = "Wake"; 
+      if (now >= endTime) {
+        console.log("----------------------Breaking cycle to WAKE!!!")
+        sleepState.y[1] = endTime; 
+        h.push(sleepState);
+        h.push({x: "Wake", y: [endTime-1, endTime]});
         break;
       }
+      h.push(sleepState);
     }
     cycleNo++
     console.log("SynthHypno Cycle #" + cycleNo);
   }
   // To make the format match what Jack's APIs return
   sleepArch.hypno = JSON.stringify(h);
+
+  // Stuff some values into the rest of the Sleep Arch object
+  sleepArch.score = 90;
+  //   sleepArch.tst = 7 * (60 * 60 * 1000);
+  sleepArch.tst = h[h.length-1].y[1] - h[0].y[0];
+  sleepArch.timedeep = CountStateTime("Deep", h);
+  //   sleepArch.timedeep =1.2 * (60 * 60 * 1000);
+  sleepArch.timerem = CountStateTime("REM", h);
+  sleepArch.timeawake = CountStateTime("Wake", h);
 
   return(sleepArch)
 }
