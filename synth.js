@@ -36,9 +36,10 @@ async function synthSleep() {
   sleepArch = SynthHypno(startTime, endTime, 20);
   console.log("Synthesized Hypno = " + sleepArch.hypno);
   gCharts.push(CreateHypnoChart(divEl, "Synthesized", startTime, endTime, sleepArch));
-  
-  var newSleepArch, warpIndex, sleepState;
 
+ 
+  var newSleepArch, warpIndex, sleepState;
+/*
   sleepState = "Deep";
   warpIndex = 5;
   newSleepArch = WarpHypno(sleepArch, sleepState, 1, 5, warpIndex);
@@ -56,7 +57,7 @@ async function synthSleep() {
   newSleepArch = WarpHypno(sleepArch, sleepState, 1, 5, warpIndex);
   console.log("===>" + sleepState + "Warped Arch:" + JSON.stringify(newSleepArch));
   gCharts.push(CreateHypnoChart("chart-area4", sleepState + "/" + warpIndex, startTime, endTime, newSleepArch));
-
+*/
   return (newSleepArch);
 }
 
@@ -81,7 +82,7 @@ function createSleepState(state, cycleNo, t, age) {
         end = t + (millisecToMin * (ageCycleMins + getRandomInt(5)));
         break;
     case "Light" :
-        start = t;
+        start =
         end = t + (millisecToMin * (40 + getRandomInt(5)));
         break;
     case "Deep" :
