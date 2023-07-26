@@ -290,8 +290,9 @@ function password_validate() {
       // Get everything ready
     var returnCode = authorizeUser(document.getElementById("username").value, document.getElementById("password").value);
 
-//    prePopulateData(1, token);
-//    initializePage();
+    gIsAuthorized = true;
+    prePopulateData(1, token);
+    initializePage();
 console.log("Got return code:" + JSON.stringify(returnCode));
 }
 
