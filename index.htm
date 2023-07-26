@@ -21,7 +21,6 @@
     <style>
       .login_oueter {
         width: 360px;
-        max-width: 100%;
     }
       .logo_outer{
       text-align: center;
@@ -30,44 +29,47 @@
       width:120px;
       margin-bottom: 40px;
     }
+
+
+
  </style>
  
   </head>
   
   <body style="background-color: #F1F1F1;" onload="initializePage()">
-    <div class="container" > 
+    <div class="container-fluid" > 
       <div id="control-panel">  
       <br>
-      <div class="card">
-        <div class="card-body">
-              <div class="row">
-                <div class="col">
-                  <select name="user-select" id="user-select" style="width: 150px;">
-                    <option value="bd85d5b1-5279-44be-6942-9e74810f4c17">Bill</option>
-                    <option value="7fbc49f4-d943-4922-5a2e-d94863bc988e">Eric</option>
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+              <div class="col">
+                <select name="user-select" id="user-select" style="width: 150px;">
+                    <option value="6e376e5e-848d-4c8c-4356-058480a7107d">Bill</option>                    
                     <option value="Jack">Other...</option>
-
-                  </select>                
+                </select>                
 <!--                 <input type="text" id="myUserToken" value="" size="38">                      --> 
-                  <input type="date" id="myDate" value="2022-02-12">
-                </div>
-                <div class="col">
-                  <button type="button" class="btn btn-primary"  onclick="showSleep()">Show Sleep</button>
-                </div>
-                <div class="col">
-                  <button type="button" class="btn btn-secondary"  onclick="findLatest()">Find Last</button>
-                  <button type="button" class="btn btn-secondary"  onclick="findWhack2Models()">Compare</button>
-                  <button type="button" class="btn btn-secondary"  onclick="synthSleep()">Synth</button>
-                </div>
+                <input type="date" id="myDate" value="2022-02-12">
               </div>
+              <div class="col">
+                <button type="button" class="btn btn-primary"  onclick="showSleep()">Show Sleep</button>
+              </div>
+              <div class="col">
+                <button type="button" class="btn btn-secondary"  onclick="findLatest()">Find Last</button>
+                <button type="button" class="btn btn-secondary"  onclick="findWhack2Models()">Compare</button>
+                <button type="button" class="btn btn-secondary"  onclick="synthSleep()">Synth</button>
+              </div>
+            </div>
           </div>
-    </div>
-    </div>
-    <br>
-
+        </div>
+      </div>
+      <br>
 
 
     <div id="sleep-data">
+
+    <!-- style="width:3500px;max-width: 100%;">  -->
+
       <div class="card">
         <div class="card-body">
 <!--        <h3 style="text-align:center">DeepSleep AppleWatch</h3>             -->
@@ -80,6 +82,9 @@
           <div id="chart-area6">  </div>
           <div id="chart-area7">  </div>
           <div id="chart-area8">  </div>
+          <div id="chart-area9">  </div>
+          <div id="chart-area10">  </div>
+
         </div>
       </div>      
     </div>

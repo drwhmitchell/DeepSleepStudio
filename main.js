@@ -48,6 +48,223 @@ var testHypno = [{"x":"Wake","y":[1657082165000,1657082224000]},
                 {"x":"Deep","y":[1657103769000,1657104242000]},
                 {"x":"Deep","y":[1657104908000,1657105233000]}];
 
+  
+var leaderboard = {
+  Leaders: [
+    {
+      Leader: {
+        username: "anonymous",
+        rank: 1,
+        time: 0.98790324,
+        tst: 14700000,
+        rem: 1380000,
+        deep: 2220000,
+        score: 38,
+        efficiency: 0.98790324,
+        hypnoid: 13488,
+        userId: 120,
+        notes: null,
+        sources: [
+          "AppleWatch"
+        ],
+        likescount: 0,
+        commentcount: 0,
+        consecutivecount: 61,
+        comments: null,
+        likedUserList: null
+      },
+      user: {
+        id: 120,
+        uuid: "ce34bb8e-39cc-4211-426d-26b69d293aa2",
+        email: "mfoley@mwfoley.com",
+        role: {
+          Int32: 0,
+          Valid: true
+        },
+        createdat: "2022-03-19T01:55:51.258326Z",
+        name: "Mike Foley",
+        password: "$2a$10$53rdZ0uYD8FFa6zW5g3GEuYV/X4Ca3Tj31vwAC6ae7yWG5VelVv0K",
+        resetpassword: {
+          String: "",
+          Valid: false
+        },
+        resetuuid: {
+          String: "",
+          Valid: false
+        },
+        resetexpiration: {
+          Time: "2022-03-19T02:05:51.43796Z",
+          Valid: true
+        },
+        lasttouch: {
+          Time: "2023-07-24T22:42:19.903152Z",
+          Valid: true
+        }
+      },
+      settings: {
+        id: 69,
+        userid: 120,
+        accountprivacy: "Private",
+        name: {
+          String: "mfoley",
+          Valid: true
+        },
+        sex: {
+          String: "Male",
+          Valid: true
+        },
+        sexprivacy: "Private",
+        birthday: {
+          Time: "1964-03-03T00:00:00Z",
+          Valid: true
+        },
+        ageprivacy: "Private"
+      },
+      sessions: [
+        {
+          id: 3182,
+          uuid: "79e6af69-5bef-4698-487f-d49ccd33dae9",
+          email: "mfoley@mwfoley.com",
+          role: {
+            Int32: 0,
+            Valid: true
+          },
+          createdat: "2022-04-28T22:54:18.106761Z",
+          userid: 120
+        },
+        {
+          id: 3181,
+          uuid: "6d4bed9d-29a2-469c-4dfb-717bb04d8869",
+          email: "mfoley@mwfoley.com",
+          role: {
+            Int32: 0,
+            Valid: true
+          },
+          createdat: "2022-04-28T22:54:17.600919Z",
+          userid: 120
+        },
+        {
+          id: 2863,
+          uuid: "311ea04a-3e64-4e45-4b15-554db9e4c026",
+          email: "mfoley@mwfoley.com",
+          role: {
+            Int32: 0,
+            Valid: true
+          },
+          createdat: "2022-04-18T20:00:59.065828Z",
+          userid: 120
+        }
+      ]
+    },
+    {
+      Leader: {
+        username: "anonymous",
+        rank: 1,
+        time: 0.98790324,
+        tst: 14700000,
+        rem: 1380000,
+        deep: 2220000,
+        score: 38,
+        efficiency: 0.98790324,
+        hypnoid: 13488,
+        userId: 120,
+        notes: null,
+        sources: [
+          "AppleWatch"
+        ],
+        likescount: 0,
+        commentcount: 0,
+        consecutivecount: 61,
+        comments: null,
+        likedUserList: null
+      },
+      user: {
+        id: 120,
+        uuid: "ce34bb8e-39cc-4211-426d-26b69d293aa2",
+        email: "mfoley@mwfoley.com",
+        role: {
+          Int32: 0,
+          Valid: true
+        },
+        createdat: "2022-03-19T01:55:51.258326Z",
+        name: "Mickey Mouse",
+        password: "$2a$10$53rdZ0uYD8FFa6zW5g3GEuYV/X4Ca3Tj31vwAC6ae7yWG5VelVv0K",
+        resetpassword: {
+          String: "",
+          Valid: false
+        },
+        resetuuid: {
+          String: "",
+          Valid: false
+        },
+        resetexpiration: {
+          Time: "2022-03-19T02:05:51.43796Z",
+          Valid: true
+        },
+        lasttouch: {
+          Time: "2023-07-24T22:42:19.903152Z",
+          Valid: true
+        }
+      },
+      settings: {
+        id: 69,
+        userid: 120,
+        accountprivacy: "Private",
+        name: {
+          String: "mfoley",
+          Valid: true
+        },
+        sex: {
+          String: "Male",
+          Valid: true
+        },
+        sexprivacy: "Private",
+        birthday: {
+          Time: "1964-03-03T00:00:00Z",
+          Valid: true
+        },
+        ageprivacy: "Private"
+      },
+      sessions: [
+        {
+          id: 3182,
+          uuid: "79e6af69-5bef-4698-487f-d49ccd33dae9",
+          email: "mfoley@mwfoley.com",
+          role: {
+            Int32: 0,
+            Valid: true
+          },
+          createdat: "2022-04-28T22:54:18.106761Z",
+          userid: 120
+        },
+        {
+          id: 3181,
+          uuid: "6d4bed9d-29a2-469c-4dfb-717bb04d8869",
+          email: "mfoley@mwfoley.com",
+          role: {
+            Int32: 0,
+            Valid: true
+          },
+          createdat: "2022-04-28T22:54:17.600919Z",
+          userid: 120
+        },
+        {
+          id: 2863,
+          uuid: "311ea04a-3e64-4e45-4b15-554db9e4c026",
+          email: "mfoley@mwfoley.com",
+          role: {
+            Int32: 0,
+            Valid: true
+          },
+          createdat: "2022-04-18T20:00:59.065828Z",
+          userid: 120
+        }
+      ]
+    }
+  ]
+};
+
+
 
 
 // Password stuff
@@ -68,13 +285,15 @@ function password_show_hide() {
 }
 
 function password_validate() {
-  // hide the authentication dialog and display the control panel
-  console.log("Password-validate()");
+  console.log("password_validate()");
 
-  gIsAuthorized = true;
-  initializePage();
+      // Get everything ready
+    var returnCode = authorizeUser(document.getElementById("username").value, document.getElementById("password").value);
+
+//    prePopulateData(1, token);
+//    initializePage();
+console.log("Got return code:" + JSON.stringify(returnCode));
 }
-
 
 
 // gCharts keeps track of the list of charts created so we can destroy them 
@@ -94,6 +313,7 @@ console.log("initializePage()");
   var resultsPanelEl = document.getElementById("sleep-data");  
   var securityEl = document.getElementById("security");  
 
+
   // If we are Authorized, display just the control panel
   if (gIsAuthorized) {
     controlPanelEl.style.display = "block";
@@ -105,6 +325,17 @@ console.log("initializePage()");
     controlPanelEl.style.display = "none";
     resultsPanelEl.style.display = "none";
   }
+}
+
+
+
+
+async function authorizeUser(email, password) {
+  pwAuth = await loginUser(email, password);
+  if (pwAuth) 
+    return true;
+  else
+    return false;
 }
 
 // Find the all 4 models of a Whack2 for a certain date offset
@@ -137,8 +368,6 @@ async function findLatest() {
   DST = userName.value;
 
   // Show the progress...
-
-
   lastSleepDiv = document.getElementById("lastSleep-amt");
   lastSleepDiv.innerHTML = "";
   lastSleepDiv.innerHTML = "Last synced sleep: ";
@@ -167,20 +396,14 @@ async function findLatest() {
     lastSleepDiv.innerHTML += "Last Night";
   else 
     lastSleepDiv.innerHTML +=  lastSleepOffset + " days ago."
-
-
-
   return (lastSleepOffset);
 }
 
 
+const mt = "6e376e5e-848d-4c8c-4356-058480a7107d";
 
 // Enter main program here....
 function showSleep() {
-  // First grab the current user token
-  var userName = document.getElementById('user-select');
-  console.log("Selected User Token =" + userName.value)
-  DST = userName.value;
 
   // Now grab the date offset
   const datePickerDate = document.getElementById('myDate').value;
@@ -195,11 +418,16 @@ function showSleep() {
   console.log("gUTCOffset = " + moment().utcOffset());
   console.log("Today UTC Offset = " + today.getTimezoneOffset());
 
-  // -14400000
-
+  
+  // Now grab the current user token
+  var userName = document.getElementById('user-select');
+  console.log("Selected User Token =" + userName.value)
+  DST = userName.value;
 
   initializePage();
-
+  
+  // User the Leaderboard API to populate the 'user-select' field
+//  prePopulateData(dateDelta, mt); 
 
   mainProgram(dateDelta, DST);
 }
@@ -225,6 +453,27 @@ console.log("Nuking InnnerHTML of Chart#" + i);
 
 const gChartDiv = "chart-area";
 var gChartCount = 1;
+
+
+// Pre-populates the Users viewable based on Leaderboard APIs
+async function prePopulateData(dateOffset, token) {
+
+  var userPicker = document.getElementById('user-select');
+  var option;
+
+  const leaderboard = await fetchLeaderboard(token);
+  for (let i = 0; i < leaderboard.Leaders.length; i++) {
+    console.log("Leaderboard API for " + JSON.stringify(leaderboard.Leaders[i].user.name) + " is: " + JSON.stringify(leaderboard.Leaders[i].sessions[0].uuid));
+ 
+    // add these to the dropdown for User Picks
+    option = document.createElement("option");
+    option.text = leaderboard.Leaders[i].user.name;
+    option.value = leaderboard.Leaders[i].sessions[0].uuid;
+    userPicker.add(option, userPicker[i+1]);
+  }
+
+  console.log("The User Picker should be populated!!!");
+}
 
 async function mainProgram(dateOffset, token) {
 
@@ -258,6 +507,8 @@ async function mainProgram(dateOffset, token) {
     gCharts.push(renderHypnoData("Withings", gChartDiv + gChartCount++, hypnoMeta, extents[0], extents[1]));
     gCharts.push(renderHypnoData("Fitbit", gChartDiv + gChartCount++, hypnoMeta, extents[0], extents[1]));
     gCharts.push(renderHypnoData("Garmin", gChartDiv + gChartCount++, hypnoMeta, extents[0], extents[1]));
+    gCharts.push(renderHypnoData("Feel", gChartDiv + gChartCount++, hypnoMeta, extents[0], extents[1]));
+    gCharts.push(renderHypnoData("Trued", gChartDiv + gChartCount++, hypnoMeta, extents[0], extents[1]));
   }
 }
 
@@ -426,6 +677,27 @@ async function fetchWhack2Data(token, model, dayOffset) {
 }
 
 
+async function fetchLeaderboard(token) {
+  var dsData = null;  
+  console.log("fetcheLeaderboard()");
+
+    const res =  await fetch('https://sleepnet.appspot.com/api/admin/leaders/stat/window/Trued/tst/0/22/1/0/20', {
+      headers: {
+      Authorization: 'Bearer ' + token
+    }
+  })
+    .then (res => res.json())
+    .then(dataBack =>  { 
+//       console.log("Leaderboard:" + JSON.stringify(dataBack));
+                          if (dataBack) {
+                            dsData = dataBack;
+                          }
+                       });
+
+    return(dsData);
+
+}
+
 
 async function fetchHypnoData(dayOffset, token) {
       var dsData = null;  
@@ -470,7 +742,41 @@ async function fetchHypnoData(dayOffset, token) {
           return(dsData);
       }
   
+ 
+async function loginUser(email, password) {
+  var dsData = null;  
+  console.log("loginUser() email='" + email + "' and password='" + password + "'");
+
+  var data = JSON.stringify({"email": email ,"password":password});
+   
+  const res = await fetch('https://sleepnet.appspot.com/api/login/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    data : data
+  })
+  
+  .then (res => res.json())
+  .then(dataBack =>  { 
+    if (dataBack) {
+      dsData = dataBack;
+      console.log("Got Login Data:" + JSON.stringify(dataBack));
+    }
+    else {
+      console.log("Could not login!");
+    }
+  })
+  .catch(function (error) {
+    console.log('LOGIN FAILED "' + error.message + '"')
+  });
+
       
+  return(dsData);
+}     
+      
+
+
       
 //===================  DATE MANIPULATION UTILITIES  ======================
 
@@ -505,4 +811,5 @@ function difference(d1, d2) {
     day = 1000*60*60*24;
   return(date2utc - date1utc)/day
 }
+
 

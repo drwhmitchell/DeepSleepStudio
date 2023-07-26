@@ -1,6 +1,8 @@
 //  SLEEPCHARTS.JS - Package of sleep chart drawing functions
 
 
+
+
 // Dynamically creates a chart sleep data (Hypno, Asleep) added on the to the DOM element passed in
 // Returns a ref to the chart object so that it can be cleaned up
 function CreateHypnoChart(chartContainerID, titleText, startTime, endTime, sleepArch) {
@@ -63,7 +65,16 @@ function CreateHypnoChart(chartContainerID, titleText, startTime, endTime, sleep
               right: 86,
               left: 0,
           }
-      },
+        },
+        
+        onClick: (e) => {
+//              const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
+  
+              // Substitute the appropriate scale IDs
+//              const dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
+//              const dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
+              console.log("Got Click Event!!!");
+        },
 
         responsive: true,
         maintainAspectRatio: false,
@@ -165,7 +176,7 @@ var newChartElID = "sleepBioChart" + Math.random()*10;
             animations: {
               tension: {
                 duration: 1000,
-                easing: 'linear',
+  //              easing: 'linear',
                 from: 1,
                 to: -0.25,
                 loop: true,
