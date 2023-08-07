@@ -17,6 +17,7 @@ var c5 = CreateBioChart('chart-area5', 'Biometrics', startTime, endTime, testHRD
 var c6 = CreateSleepRecordsChart('chart-area6', 'Sleep Records', startTime, endTime, testSRData, testInbedData)
 */
 
+/*
 var testHypno = [{"x":"Wake","y":[1657082165000,1657082224000]},
                 {"x":"Wake","y":[1657082623000,1657082744000]},
                 {"x":"Wake","y":[1657092405000,1657092410000]},
@@ -263,8 +264,41 @@ var leaderboard = {
     }
   ]
 };
+*/
 
 
+
+// gCharts keeps track of the list of charts created so we can destroy them 
+var gCharts = []; 
+var gViewingUTCOffset = moment().utcOffset();
+var gIsAuthorized = false;    // start out unauthorized
+
+// Preset the Date Picker to today's date
+const [currentDate, currentTime] = formatDate(new Date()).split(' ');
+const dateInput = document.getElementById('myDate');
+dateInput.value = currentDate;
+
+
+
+// On Page Load function
+function initializePage() {
+console.log("initializePage()");
+  var controlPanelEl = document.getElementById("control-panel"); 
+  var resultsPanelEl = document.getElementById("sleep-data");  
+  var securityEl = document.getElementById("security");  
+
+  // If we are Authorized, display just the control panel
+  if (gIsAuthorized) {
+    controlPanelEl.style.display = "block";
+    securityEl.style.display = "none";  // Hide login panel
+    resultsPanelEl.style.display = "none";   // Hide results panel until we use control panel to generate some
+  } else {
+    // We're not Authorized yet so just show the security panel and hide the rest
+    securityEl.style.display = "block";
+    controlPanelEl.style.display = "none";
+    resultsPanelEl.style.display = "none";
+  }
+}
 
 
 // Password stuff
@@ -288,51 +322,38 @@ function password_validate() {
   console.log("password_validate()");
 
       // Get everything ready
-    var returnCode = authorizeUser(document.getElementById("username").value, document.getElementById("password").value);
+ //var returnCode = authorizeUser(document.getElementById("username").value, document.getElementById("password").value);
+ // Right now, force authorize, as CORS is blocking
+gIsAuthorized = true;
 
-    gIsAuthorized = true;
-    prePopulateData(1, token);
-    initializePage();
-console.log("Got return code:" + JSON.stringify(returnCode));
+  const mt = "f84fbab5-3572-4141-7bfa-4b1f89fd1b16";
+
+  initializePage();
+  prePopulateData(getDateOffset(), mt);
+
+//console.log("Got return code:" + JSON.stringify(returnCode));
 }
 
-
-// gCharts keeps track of the list of charts created so we can destroy them 
-var gCharts = []; 
-var gViewingUTCOffset = moment().utcOffset();
-var gIsAuthorized = false;    // start out unauthorized
-
-// Preset the Date Picker to today's date
-const [currentDate, currentTime] = formatDate(new Date()).split(' ');
-const dateInput = document.getElementById('myDate');
-dateInput.value = currentDate;
-
-// On Page Load function
-function initializePage() {
-console.log("initializePage()");
-  var controlPanelEl = document.getElementById("control-panel"); 
-  var resultsPanelEl = document.getElementById("sleep-data");  
-  var securityEl = document.getElementById("security");  
-
-
-  // If we are Authorized, display just the control panel
-  if (gIsAuthorized) {
-    controlPanelEl.style.display = "block";
-    securityEl.style.display = "none";  // Hide login panel
-    resultsPanelEl.style.display = "none";   // Hide results panel until we use control panel to generate some
-  } else {
-    // We're not Authorized yet so just show the security panel and hide the rest
-    securityEl.style.display = "block";
-    controlPanelEl.style.display = "none";
-    resultsPanelEl.style.display = "none";
-  }
+// Fetches the current Date Offset from the Date Picker
+function getDateOffset() {
+  const datePickerDate = document.getElementById('myDate').value;
+  console.log("Date Picker Datet =" + datePickerDate);
+  // Javascript's Date function is incredibly screwed up, so I need to get today's date in this bizzare way
+  var today = new Date();
+  var strToday =  today.getFullYear() + "-" + padTo2Digits(today.getMonth()+1) + "-" + padTo2Digits(today.getDate());
+  // SleepNet's APIs all use 'date offsets' so I need to use this.
+  var dateDelta = difference(datePickerDate, strToday);
+  dateDelta = dateDelta > -1 ? dateDelta : 0;   // Default the sleep offset to 0 if something future picked on the date picker
+  console.log("Date Offset =" + dateDelta);
+  console.log("gUTCOffset = " + moment().utcOffset());
+  console.log("Today UTC Offset = " + today.getTimezoneOffset());
+  console.log("Date Time Offset would say DATE_OFFSET==" + dateDelta + " and TIME_OFFSET==" + today.getTimezoneOffset()/60);
+  return(dateDelta);
 }
-
-
-
 
 async function authorizeUser(email, password) {
   pwAuth = await loginUser(email, password);
+
   if (pwAuth) 
     return true;
   else
@@ -401,24 +422,12 @@ async function findLatest() {
 }
 
 
-const mt = "6e376e5e-848d-4c8c-4356-058480a7107d";
 
 // Enter main program here....
 function showSleep() {
 
   // Now grab the date offset
-  const datePickerDate = document.getElementById('myDate').value;
-  console.log("Date Picker Datet =" + datePickerDate);
-  // Javascript's Date function is incredibly screwed up, so I need to get today's date in this bizzare way
-  var today = new Date();
-  var strToday =  today.getFullYear() + "-" + padTo2Digits(today.getMonth()+1) + "-" + padTo2Digits(today.getDate());
-  // SleepNet's APIs all use 'date offsets' so I need to use this.
-  var dateDelta = difference(datePickerDate, strToday);
-  dateDelta = dateDelta > -1 ? dateDelta : 0;   // Default the sleep offset to 0 if something future picked on the date picker
-  console.log("Date Offset =" + dateDelta);
-  console.log("gUTCOffset = " + moment().utcOffset());
-  console.log("Today UTC Offset = " + today.getTimezoneOffset());
-
+  dateDelta = getDateOffset();
   
   // Now grab the current user token
   var userName = document.getElementById('user-select');
@@ -462,54 +471,86 @@ async function prePopulateData(dateOffset, token) {
   var userPicker = document.getElementById('user-select');
   var option;
 
-  const leaderboard = await fetchLeaderboard(token);
-  for (let i = 0; i < leaderboard.Leaders.length; i++) {
-    console.log("Leaderboard API for " + JSON.stringify(leaderboard.Leaders[i].user.name) + " is: " + JSON.stringify(leaderboard.Leaders[i].sessions[0].uuid));
+  const leaderboard = await fetchLeaderboard(dateOffset, token);
+  if (leaderboard) {
+    for (let i = 0; i < leaderboard.Leaders.length; i++) {
+      console.log("Leaderboard API for " + JSON.stringify(leaderboard.Leaders[i].user.name) + " is: " + JSON.stringify(leaderboard.Leaders[i].sessions[0].uuid));
  
-    // add these to the dropdown for User Picks
-    option = document.createElement("option");
-    option.text = leaderboard.Leaders[i].user.name;
-    option.value = leaderboard.Leaders[i].sessions[0].uuid;
-    userPicker.add(option, userPicker[i+1]);
+      // add these to the dropdown for User Picks
+      option = document.createElement("option");
+      option.text = leaderboard.Leaders[i].user.name;
+      option.value = leaderboard.Leaders[i].sessions[0].uuid;
+      userPicker.add(option, userPicker[i+1]);
+      console.log("The User Picker should be populated!!!");
+    }
   }
-
-  console.log("The User Picker should be populated!!!");
+  else
+    console.log("ERROR: User Picker could not be populated!!!");
 }
 
 async function mainProgram(dateOffset, token) {
-
-  // Show chart area
-  var sleepDataEl = document.getElementById("sleep-data");
-  console.log("Sleep Data DIV state='" + sleepDataEl.style.display + "'");
-  sleepDataEl.style.display = "block";
-
+  // Try to grab the union of all Hypno data we have for the user
   const hypnoMeta = await fetchHypnoData(dateOffset, token);
-  const heathKitRecs = await fetchHealthkitData(dateOffset, token);
 
+  // Only render *anything* if we actually got back *some* hypno data
   if (hypnoMeta) {
-    console.log("***>Successfully Fetched a Hypno: " + JSON.stringify(hypnoMeta));
+    console.log("***>Successfully Fetched a Hypno from HypnoMeta()");
+    cleanUpAllCharts();  // Get ready to draw new hypnos and biometrics by erasing old stuff
 
-    cleanUpAllCharts();
+      // Show chart area
+    var sleepDataEl = document.getElementById("sleep-data");
+    console.log("Sleep Data DIV state='" + sleepDataEl.style.display + "'");
+    sleepDataEl.style.display = "block";
   
-    // See what our time range is for all records
-    var extents = findExtents(hypnoMeta);
+    // We only have Healthkit data if there was an AppleWatch detected....but it could be "bad Applewatch data"....
+    const heathKitRecs = await fetchHealthkitData(dateOffset, token);
 
-    renderHypnoData("SleepSignal_Hypno", gChartDiv + gChartCount++, hypnoMeta, extents[0], extents[1]);
+    // so we find 2 sets of extents...the default that's *with* AppleWatch data and an 'altExtents' without
+    const extents = findExtents(hypnoMeta, true);   //  don't know if AppleWatch data is good yet...
+    const altExtents = findExtents(hypnoMeta, true);
+  console.log("DETERMINED: Extents=" + extents[0] + "--" + extents[1]);
+  console.log("DETERMINED: AltExtents=" + altExtents[0] + "--" + altExtents[1]);
+
+    var startExtent = extents[0];
+    var endExtent = extents[1];
+
     if (heathKitRecs) {
+
       const hrRecList = marshallHealthkitRecords('HKQuantityTypeIdentifierHeartRate', heathKitRecs);
       const aeRecList = marshallHealthkitRecords('HKQuantityTypeIdentifierActiveEnergyBurned', heathKitRecs);
       const xformedAErecList = xformAERecs(aeRecList);  // pads out the AE records so they can be used in a Stepped Line chart
-      gCharts.push(CreateBioChart(gChartDiv + gChartCount++, 'Biometrics', extents[0], extents[1], hrRecList, xformedAErecList));
+      // See what our time range is for all records assuming AppleWatch data is good
+      const inBedSleepDataLists = marshallHealthkitSleepRecords(heathKitRecs, startExtent, endExtent);
+      const inBedDataCount = (inBedSleepDataLists[0].length)/2 - 1;
+      const asleepDataCount = inBedSleepDataLists[1].length;
 
-      const inBedSleepDataLists = marshallHealthkitSleepRecords(heathKitRecs, extents[0], extents[1]);
-      gCharts.push(CreateSleepRecordsChart(gChartDiv + gChartCount++, '', extents[0], extents[1], inBedSleepDataLists[0], inBedSleepDataLists[1]));
+      // If we have valid AppleWatch data
+      if (inBedDataCount && asleepDataCount) {
+
+        // Only show AppleWatch data if we think we legitimately have some.   Determined by having non-zero InBed and Asleep records
+        gCharts.push(CreateBioChart(gChartDiv + gChartCount++, 'Biometrics', startExtent, endExtent, hrRecList, xformedAErecList));
+        gCharts.push(CreateSleepRecordsChart(gChartDiv + gChartCount++, '', startExtent, endExtent, inBedSleepDataLists[0], inBedSleepDataLists[1]));
+        renderHypnoData("SleepSignal_Hypno", gChartDiv + gChartCount++, hypnoMeta, startExtent, endExtent);
+
+      }
+      else {
+
+        // Don't have valid AppleWatch Data so recalc extents data
+        console.log("Excluding AppleWatch Data");
+        startExtent = altExtents[0];
+        endExtent = altExtents[1];
+      }
     }
-    gCharts.push(renderHypnoData("Oura", gChartDiv + gChartCount++, hypnoMeta, extents[0], extents[1]));
-    gCharts.push(renderHypnoData("Withings", gChartDiv + gChartCount++, hypnoMeta, extents[0], extents[1]));
-    gCharts.push(renderHypnoData("Fitbit", gChartDiv + gChartCount++, hypnoMeta, extents[0], extents[1]));
-    gCharts.push(renderHypnoData("Garmin", gChartDiv + gChartCount++, hypnoMeta, extents[0], extents[1]));
-    gCharts.push(renderHypnoData("Feel", gChartDiv + gChartCount++, hypnoMeta, extents[0], extents[1]));
-    gCharts.push(renderHypnoData("Trued", gChartDiv + gChartCount++, hypnoMeta, extents[0], extents[1]));
+    else {
+      startExtent = altExtents[0];
+      endExtent = altExtents[1];
+    }
+    gCharts.push(renderHypnoData("Oura", gChartDiv + gChartCount++, hypnoMeta, startExtent, endExtent));
+    gCharts.push(renderHypnoData("Withings", gChartDiv + gChartCount++, hypnoMeta, startExtent, endExtent));
+    gCharts.push(renderHypnoData("Fitbit", gChartDiv + gChartCount++, hypnoMeta, startExtent, endExtent));
+    gCharts.push(renderHypnoData("Garmin", gChartDiv + gChartCount++, hypnoMeta, startExtent, endExtent));
+    gCharts.push(renderHypnoData("Feel", gChartDiv + gChartCount++, hypnoMeta, startExtent, endExtent));
+    gCharts.push(renderHypnoData("Trued", gChartDiv + gChartCount++, hypnoMeta, startExtent, endExtent));
   }
 }
 
@@ -547,17 +588,21 @@ function makeLongArr(objArr) {
 
 // Find the broadest set of "begin" and "end" times for all Hypnos so we can see what they all 
 // look like aligned on a common horizontal axis
-function findExtents(jsonHypno) {
+function findExtents(jsonHypno, isAppleWatchValid) {
   var min = Date.now();     // A good start for max, since we'll always be looking at dates in the past
   var max = 0;
  // const padding = 720000;   // How much pre/post time padding we want around extents
   const padding = 600000;
+  var valids;
 
   jsonHypno.forEach(function(el) {
-    if (el.source != "Trued") {   // Ignore 'Trued' since it's in a different form
-      var h = JSON.parse(el.hypno);
-      min = Math.min(min, Math.min(...h.map(({x, y})=>{ return y[0];})));
-      max = Math.max(max, Math.max(...h.map(({x, y})=>{ return y[1];})));
+    valids = ((el.source != "Trued") && (el.source != "AppleWatch" || isAppleWatchValid == true));
+    if (valids) {   // Ignore 'Trued' since it's in a different form
+      if (isAppleWatchValid) {   // Only count AppleWatch if it's a legitimate reading
+        var h = JSON.parse(el.hypno);
+        min = Math.min(min, Math.min(...h.map(({x, y})=>{ return y[0];})));
+        max = Math.max(max, Math.max(...h.map(({x, y})=>{ return y[1];})));
+      }
     }
   });
   const minimax = [min - padding, max + padding];
@@ -678,18 +723,18 @@ async function fetchWhack2Data(token, model, dayOffset) {
 }
 
 
-async function fetchLeaderboard(token) {
+async function fetchLeaderboard(dateOffset, token) {
   var dsData = null;  
   console.log("fetcheLeaderboard()");
 
-    const res =  await fetch('https://sleepnet.appspot.com/api/admin/leaders/stat/window/Trued/tst/0/22/1/0/20', {
+    const res =  await fetch('https://sleepnet.appspot.com/api/admin/leaders/stat/window/Trued/sleep_efficiency/1/0/' + 1 + '/0/20', {
       headers: {
       Authorization: 'Bearer ' + token
     }
   })
     .then (res => res.json())
     .then(dataBack =>  { 
-//       console.log("Leaderboard:" + JSON.stringify(dataBack));
+       console.log("Leaderboard:" + JSON.stringify(dataBack));
                           if (dataBack) {
                             dsData = dataBack;
                           }

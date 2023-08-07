@@ -263,7 +263,6 @@ console.log("CreateSleepRecordChart with Start/End=" + startTime + "-" + endTime
 console.log("CreateSleepRecordChart with InBedData=" + JSON.stringify(inBedData));
 console.log("CreateSleepRecordChart with AsleepData=" + JSON.stringify(asleepData));
 
-
   var newChartElID = "sleepRecordsChart" + Math.random()*10;
   var chartsHTML = document.getElementById(chartContainerID);
   var newHTMLbuf = [];
