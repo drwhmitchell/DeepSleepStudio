@@ -14,6 +14,111 @@ sleepAvgs = [ {Age: 5, TST: 536, Deep: 193, REM: 108, Light: 235, WakeT: 6},
   {Age: 85, TST: 319, Deep: 20, REM: 69, Light: 230, WakeT: 82},
 ];
 
+
+function flattenStates(newHypno, origState, newState) {
+
+  newHypno.forEach(function(el) {
+    console.log("State: " + el.x + "\n");
+    if ((el.x == origState) && ((el.y[1]-el.y[0])/60000) <= 5) {
+      console.log("Flattening a WAKE!\n");
+      el.x = newState;  // Decrement sleep state
+    }
+  });
+  return newHypno;
+}
+
+
+// Walks through the Trued Hypno and adjusts the states based on the values of other hypnos
+async function trueTrue() {
+  console.log("TRUE TRUE MOVEMENT...");
+
+  var truedCheckbox = document.getElementById("trued");
+  if (gTruedCheckbox) {
+    console.log("Flatten Checkbox already Checked!!!");
+    truedCheckbox.checked = true;
+  }
+  else {
+    gTruedCheckbox = true;
+    const hypnoMeta = await fetchHypnoData(getDateOffset(), getCurrentUserToken());
+    // Only render *anything* if we actually got back *some* hypno data
+    if (hypnoMeta) {
+      // Show chart area
+      var sleepDataEl = document.getElementById("sleep-data");
+      console.log("Sleep Data DIV state='" + sleepDataEl.style.display + "'");
+      sleepDataEl.style.display = "block";
+
+      const extents = findExtents(hypnoMeta, true);   
+      var startExtent = extents[0];
+      var endExtent = extents[1];
+
+      var sleepArch = findSrc(hypnoMeta, "Trued");
+      
+      var newHypno = flattenStates(JSON.parse(sleepArch.hypno), 'Wake', 'REM');   // squash any short Wake states to REMs
+      newHypno = flattenStates(newHypno, 'REM', 'Light');       // squash any short REM states to Light
+      sleepArch.hypno = JSON.stringify(newHypno);        // Repackage this up as a stringified part of sleep arch
+
+      calcSleepStats(sleepArch);  // Now have to recalc sleep stats/KSIs
+
+      gCharts.push(CreateHypnoChart(gChartDiv + gChartCount++, "True Trued", startExtent, endExtent, sleepArch));
+    }
+    else
+      console.log("ERROR: Cannot True True Chart...no Hypno data!!!");
+  }  
+}
+
+
+
+// Flattens the movement data in the main sleep 
+async function flattenMovement() {
+  console.log("FLATTENING MOVEMENT...");
+
+  var flattenCheckbox = document.getElementById("flattened");
+  if (gFlettenCheckbox) {
+    console.log("Flatten Checkbox already Checked!!!");
+    flattenCheckbox.checked = true;
+  }
+  else {
+    gFlettenCheckbox = true;
+    const hypnoMeta = await fetchHypnoData(getDateOffset(), getCurrentUserToken());
+    // Only render *anything* if we actually got back *some* hypno data
+    if (hypnoMeta) {
+      // Show chart area
+      var sleepDataEl = document.getElementById("sleep-data");
+      console.log("Sleep Data DIV state='" + sleepDataEl.style.display + "'");
+      sleepDataEl.style.display = "block";
+
+      const extents = findExtents(hypnoMeta, true);   
+      var startExtent = extents[0];
+      var endExtent = extents[1];
+
+      var sleepArch = findSrc(hypnoMeta, "Trued");
+      var newHypno = flattenStates(JSON.parse(sleepArch.hypno), 'Wake', 'REM');   // squash any short Wake states to REMs
+      newHypno = flattenStates(newHypno, 'REM', 'Light');       // squash any short REM states to Light
+      sleepArch.hypno = JSON.stringify(newHypno);        // Repackage this up as a stringified part of sleep arch
+
+      calcSleepStats(sleepArch);  // Now have to recalc sleep stats/KSIs
+
+      gCharts.push(CreateHypnoChart(gChartDiv + gChartCount++, "Dampened Movement", startExtent, endExtent, sleepArch));
+    }
+    else
+      console.log("ERROR: Cannot draw Flattened Chart...no Hypno data!!!");
+  }  
+}
+
+function calcSleepStats(sleepArch) {
+
+  var h = JSON.parse(sleepArch.hypno);
+  // Stuff some values into the rest of the Sleep Arch object
+  sleepArch.score = 90;
+  //   sleepArch.tst = 7 * (60 * 60 * 1000);
+  sleepArch.tst = h[h.length-1].y[1] - h[0].y[0];
+  sleepArch.timedeep = CountStateTime("Deep", h);
+  //   sleepArch.timedeep =1.2 * (60 * 60 * 1000);
+  sleepArch.timerem = CountStateTime("REM", h);
+  sleepArch.timeawake = CountStateTime("Wake", h);
+}
+
+
 // Top level request to synthesize a sleep model and display it as a Hypno Chart
 async function synthSleep() {
 
@@ -21,7 +126,7 @@ async function synthSleep() {
   var synthedSleep = null;
 
   initializePage();
-  cleanUpAllCharts();
+ // cleanUpAllCharts();
 
   lastSleepDiv = document.getElementById("lastSleep-amt");
 
@@ -35,7 +140,7 @@ async function synthSleep() {
 
   sleepArch = SynthHypno(startTime, endTime, 20);
   console.log("Synthesized Hypno = " + sleepArch.hypno);
-  gCharts.push(CreateHypnoChart(divEl, "Synthesized", startTime, endTime, sleepArch));
+  gCharts.push(CreateHypnoChart(gChartDiv + gChartCount++, "Synthesized", startTime, endTime, sleepArch));
 
  
   var newSleepArch, warpIndex, sleepState;

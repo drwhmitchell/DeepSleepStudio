@@ -44,20 +44,33 @@
           <div class="card-body">
             <div class="row">
               <div class="col">
-                <select name="user-select" id="user-select" style="width: 150px;">
-                    <option value="6e376e5e-848d-4c8c-4356-058480a7107d">Bill</option>                    
+                <select name="user-select" id="user-select" style="width: 150px;" onchange="showSleep()"></select>
+<!--                 <option value="6e376e5e-848d-4c8c-4356-058480a7107d">Bill</option>                    
                     <option value="Jack">Other...</option>
+-->   
                 </select>                
 <!--                 <input type="text" id="myUserToken" value="" size="38">                      --> 
-                <input type="date" id="myDate" value="2022-02-12">
+                <input type="date" id="myDate" value="2022-02-12" onchange="refreshSleep()">
               </div>
               <div class="col">
-                <button type="button" class="btn btn-primary"  onclick="showSleep()">Show Sleep</button>
+                <button type="button" class="btn btn-primary"  onclick="showSleep()">Refresh</button>
               </div>
               <div class="col">
-                <button type="button" class="btn btn-secondary"  onclick="findLatest()">Find Last</button>
+                <input id="flattened" name="flattened" type="checkbox" onchange="flattenMovement()"> 
+                <label id="flattened-label" for="flattened">Dampened</label>     
+                <label>&nbsp&nbsp</label>     
+                <input id="trued" name="trued" type="checkbox" onchange="trueTrue()"> 
+                <label id="trued-label" for="trued">Trued</label>     
+                <label>&nbsp&nbsp</label>     
+                <input id="synthesize" name="synthesize" type="checkbox" onclick="synthSleep()"> 
+                <label id="synthesize-label" for="synthesize">Synthesized</label>     
+              </div>
+              <div class="col">
+                <button type="button" class="btn btn-secondary"  onclick="flattenMovement()">Reduce Moves</button>
+<!--                <button type="button" class="btn btn-secondary"  onclick="findLatest()">Find Last</button>
                 <button type="button" class="btn btn-secondary"  onclick="findWhack2Models()">Compare</button>
                 <button type="button" class="btn btn-secondary"  onclick="synthSleep()">Synth</button>
+-->
               </div>
             </div>
           </div>
@@ -84,6 +97,8 @@
           <div id="chart-area8">  </div>
           <div id="chart-area9">  </div>
           <div id="chart-area10">  </div>
+          <div id="chart-area11">  </div>
+          <div id="chart-area12">  </div>
 
         </div>
       </div>      

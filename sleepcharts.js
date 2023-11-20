@@ -8,7 +8,8 @@
 function CreateHypnoChart(chartContainerID, titleText, startTime, endTime, sleepArch) {
   console.log("CreateHypnoChart with Start/End=" + startTime + "-" + endTime);
   console.log("HYPNO DATA =" + sleepArch.hypno);
-  var hypnoData = marshallSleepNetHypno(JSON.parse(sleepArch.hypno));
+  var h = JSON.parse(sleepArch.hypno);
+  var hypnoData = marshallSleepNetHypno(h);
   var newChartElID = "sleepBioChart" + Math.random()*10;
 
   var chartsHTML = document.getElementById(chartContainerID);
@@ -28,10 +29,18 @@ function CreateHypnoChart(chartContainerID, titleText, startTime, endTime, sleep
   newHTMLbuf += "<div class='text-center' style='background-color: #F5F4F8'>";
   newHTMLbuf += "<small>SCORE " + Math.round(sleepArch.score);
   newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp TST " + epochTimeToHours(sleepArch.tst) + " hours";
+  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp DEEP " + epochTimeToHours(CountStateTime("Deep", h)) + " hours";
+  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp REM " + epochTimeToHours(CountStateTime("REM", h)) + " hours";
+  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp AWAKE " + epochTimeToHours(CountStateTime("Wake", h)) + " hours";
+  newHTMLbuf += "&nbsp&nbsp(Reported)</small><br>";
+
+  // Now show recalc'd values
+  newHTMLbuf += "<small>SCORE " + Math.round(sleepArch.score);
+  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp TST " + epochTimeToHours(h[h.length-1].y[1] - h[0].y[0]) + " hours";
   newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp DEEP " + epochTimeToHours(sleepArch.timedeep) + " hours";
   newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp REM " + epochTimeToHours(sleepArch.timerem) + " hours";
   newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp AWAKE " + epochTimeToHours(sleepArch.timeawake) + " hours";
-  newHTMLbuf += "</small></div><br>";
+  newHTMLbuf += "&nbsp&nbsp(Calculated)</small></div><br>";
 
   chartsHTML.innerHTML += newHTMLbuf;   // Append the new HTML
   console.log("Creating new Chart='" + newChartElID + "'");
@@ -48,15 +57,15 @@ function CreateHypnoChart(chartContainerID, titleText, startTime, endTime, sleep
             fill: false,
             radius: 0,
             data : hypnoData,
-            animations: {
-              tension: {
-                duration: 1000,
-                easing: 'linear',
-                from: 1,
-                to: -0.25,
-                loop: true,
-              }
-            }
+ //           animations: {
+ //             tension: {
+ //               duration: 1000,
+ //               easing: 'linear',
+ //               from: 1,
+ //               to: -0.25,
+ //               loop: true,
+ //             }
+ //           }
           }],
       },
       options: {
@@ -68,12 +77,20 @@ function CreateHypnoChart(chartContainerID, titleText, startTime, endTime, sleep
         },
         
         onClick: (e) => {
-//              const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
+              const canvasPosition = Chart.helpers.getRelativePosition(e, hypnoChart);
   
               // Substitute the appropriate scale IDs
-//              const dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
-//              const dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
-              console.log("Got Click Event!!!");
+              const timeX = hypnoChart.scales.x.getValueForPixel(canvasPosition.x);
+              const stateY = hypnoChart.scales.SleepState.getValueForPixel(canvasPosition.SleepState);
+
+//              var activePoint = hypnoChart.getElementAtEvent('onClick');
+//              var selectedPoint = activePoint[0];
+//              selectedPoint.custom = this.selectedPoint.custom || {};
+//              selectedPoint.custom.backgroundColor = 'rgba(128,128,128,1)';
+//              selectedPoint.custom.radius = 7;              
+              
+              console.log("Got Click Event at X=" + timeX);
+              console.log("Time=" + new Date(timeX).toLocaleTimeString() + " State=" + JSON.stringify(stateY));
         },
 
         responsive: true,

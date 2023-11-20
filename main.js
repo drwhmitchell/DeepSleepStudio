@@ -272,13 +272,20 @@ var leaderboard = {
 var gCharts = []; 
 var gViewingUTCOffset = moment().utcOffset();
 var gIsAuthorized = false;    // start out unauthorized
+var gFlettenCheckbox = false;
 
 // Preset the Date Picker to today's date
 const [currentDate, currentTime] = formatDate(new Date()).split(' ');
 const dateInput = document.getElementById('myDate');
 dateInput.value = currentDate;
+const mt = "45a31d51-799e-4776-5ea7-b7cb540c701f";
 
 
+// 1. create access token https://cloud.ouraring.com/docs/authentication#create-a-personal-access-token
+// 2. use API 
+var OURA_TOKEN = 'JRW4ID2RRFVOTQHN4C7MLIT2U2OCT3CR';
+var date = '2023-10-23';
+//findOuraData(OURA_TOKEN, date);
 
 // On Page Load function
 function initializePage() {
@@ -286,6 +293,15 @@ console.log("initializePage()");
   var controlPanelEl = document.getElementById("control-panel"); 
   var resultsPanelEl = document.getElementById("sleep-data");  
   var securityEl = document.getElementById("security");  
+  var flattenCheckbox = document.getElementById("flattened");
+  var truedCheckbox = document.getElementById("trued");
+
+  // Reset flatten checkbox to whatever it should be
+  gFlattenCheckbox = false;
+  flattenCheckbox.checked = false;
+
+  gTruedCheckbox = false;
+  truedCheckbox = false;
 
   // If we are Authorized, display just the control panel
   if (gIsAuthorized) {
@@ -326,13 +342,17 @@ function password_validate() {
  // Right now, force authorize, as CORS is blocking
 gIsAuthorized = true;
 
-//  const mt = "f84fbab5-3572-4141-7bfa-4b1f89fd1b16";
-  const mt = "9946bfa0-d7db-4eb1-7769-c5dcc6ee9008";
-
   initializePage();
   prePopulateData(getDateOffset(), mt);
 
 //console.log("Got return code:" + JSON.stringify(returnCode));
+}
+
+function getCurrentUserToken() {
+    // Grabs the currently selected user's token
+    var userName = document.getElementById('user-select');
+    console.log("getCurrentUserToken User Token =" + userName.value)
+    return(userName.value);  
 }
 
 // Fetches the current Date Offset from the Date Picker
@@ -344,12 +364,17 @@ function getDateOffset() {
   var strToday =  today.getFullYear() + "-" + padTo2Digits(today.getMonth()+1) + "-" + padTo2Digits(today.getDate());
   // SleepNet's APIs all use 'date offsets' so I need to use this.
   var dateDelta = difference(datePickerDate, strToday);
-  dateDelta = dateDelta > -1 ? dateDelta : 0;   // Default the sleep offset to 0 if something future picked on the date picker
+// I think I handle errors right now so we don't need this..
+  //  dateDelta = dateDelta > -1 ? dateDelta : 0;   // Default the sleep offset to 0 if something future picked on the date picker
   console.log("Date Offset =" + dateDelta);
   console.log("gUTCOffset = " + moment().utcOffset());
   console.log("Today UTC Offset = " + today.getTimezoneOffset());
   console.log("Date Time Offset would say DATE_OFFSET==" + dateDelta + " and TIME_OFFSET==" + today.getTimezoneOffset()/60);
-  return(dateDelta);
+  console.log("Total time perhaps longer than TODAY =" + Number(today.getHours() + today.getTimezoneOffset()/60));
+  if ((today.getHours() + today.getTimezoneOffset()/60) < 24)
+    return(dateDelta);
+  else 
+    return(dateDelta + 1);
 }
 
 async function authorizeUser(email, password) {
@@ -359,6 +384,16 @@ async function authorizeUser(email, password) {
     return true;
   else
     return false;
+}
+
+async function findOuraData(token, date) {
+  console.log("Entered FindOuraData()");
+  var res = await fetch("https://api.ouraring.com/v1/activity?start="+date+"&end="+date+"&access_token="+token);
+  var data = (await res.json()).activity;
+  data = data.length ? data[0] : {};
+ // console.log("Oura Res==" + JSON.stringify(res));
+  console.log("Oura Data==" + JSON.stringify(data));
+console.log("Met-1-min==" + JSON.stringify(data.met_1min));
 }
 
 // Find the all 4 models of a Whack2 for a certain date offset
@@ -444,6 +479,12 @@ function showSleep() {
 }
 
 
+function refreshSleep() {
+  initializePage();
+  prePopulateData(getDateOffset(), mt);
+}
+
+
 function cleanUpAllCharts() {
   console.log("CleanUpAllCharts with gChartCount =" + gChartCount);
   // Nuke any live charts because we're about to create more....
@@ -472,6 +513,9 @@ async function prePopulateData(dateOffset, token) {
   var userPicker = document.getElementById('user-select');
   var option;
 
+  // Remove any options if there are any already...
+  userPicker.options.length = 0;
+
   const leaderboard = await fetchLeaderboard(dateOffset, token);
   if (leaderboard) {
     for (let i = 0; i < leaderboard.Leaders.length; i++) {
@@ -484,9 +528,13 @@ async function prePopulateData(dateOffset, token) {
       userPicker.add(option, userPicker[i+1]);
       console.log("The User Picker should be populated!!!");
     }
+    // Now show the first user 
+    showSleep();
   }
-  else
+  else {
     console.log("ERROR: User Picker could not be populated!!!");
+    alert("Error:  No DeepSleep Users Found!");
+  }
 }
 
 async function mainProgram(dateOffset, token) {
@@ -597,17 +645,16 @@ function findExtents(jsonHypno, isAppleWatchValid) {
   var valids;
 
   jsonHypno.forEach(function(el) {
-    valids = ((el.source != "Trued") && (el.source != "AppleWatch" || isAppleWatchValid == true));
+    valids = (el.source != "Trued");
     if (valids) {   // Ignore 'Trued' since it's in a different form
-      if (isAppleWatchValid) {   // Only count AppleWatch if it's a legitimate reading
+console.log("FIND_EXTENTS: " + el.source + "\n");
         var h = JSON.parse(el.hypno);
         min = Math.min(min, Math.min(...h.map(({x, y})=>{ return y[0];})));
         max = Math.max(max, Math.max(...h.map(({x, y})=>{ return y[1];})));
-      }
     }
   });
   const minimax = [min - padding, max + padding];
-  console.log("Final Extents=[" + new Date(min).toLocaleString() + "," + new Date(max).toLocaleString() + "]");
+  console.log("FIND EXTENTS Final Extents=[" + new Date(min).toLocaleString() + "," + new Date(max).toLocaleString() + "]");
   return minimax;
 }
 
@@ -726,13 +773,14 @@ async function fetchWhack2Data(token, model, dayOffset) {
 
 async function fetchLeaderboard(dateOffset, token) {
   var dsData = null;  
-  console.log("fetcheLeaderboard()");
+  console.log("fetchLeaderboard()");
 
-    const res =  await fetch('https://sleepnet.appspot.com/api/admin/leaders/stat/window/Trued/sleep_efficiency/1/0/' + 1 + '/0/20', {
+    const res =  await fetch('https://sleepnet.appspot.com/api/admin/leaders/stat/window/Trued/sleep_efficiency/' + dateOffset + '/22/1/0/30', {
       headers: {
-      Authorization: 'Bearer ' + token
+      Authorization: 'Bearer ' + mt
     }
   })
+    .catch(err => {console.log("Can't Fetch Leaderboard Data: " + err.response.data)})
     .then (res => res.json())
     .then(dataBack =>  { 
        console.log("Leaderboard:" + JSON.stringify(dataBack));
@@ -750,7 +798,7 @@ async function fetchHypnoData(dayOffset, token) {
       var dsData = null;  
       console.log("fetchHypnoData()");
     
-      const res = await fetch('https://sleepnet.appspot.com/api/hypnostats/' + dayOffset, {
+      const res = await fetch('https://sleepnet.appspot.com/api/hypnostats/' + dayOffset + "/22", {
     
           headers: {
           Authorization: 'Bearer ' + token
@@ -772,7 +820,7 @@ async function fetchHypnoData(dayOffset, token) {
         var dsData = null;  
         console.log("fetchHealthkitData()");
       
-        const res = await fetch('https://sleepnet.appspot.com/api/records/' + dayOffset, {
+        const res = await fetch('https://sleepnet.appspot.com/api/recordshour/' + dayOffset + "/22", {
      
             headers: {
             Authorization: 'Bearer ' + token
