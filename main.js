@@ -294,6 +294,12 @@ var OURA_TOKEN = 'JRW4ID2RRFVOTQHN4C7MLIT2U2OCT3CR';
 var date = '2023-10-23';
 //findOuraData(OURA_TOKEN, date);
 
+
+function logout(){
+  app.ds_auth = null;
+  document.cookie = "";
+  location.reload();
+}
 // On Page Load function
 function initializePage() {
 console.log("initializePage()");  
