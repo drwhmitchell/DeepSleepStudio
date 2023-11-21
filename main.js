@@ -377,10 +377,9 @@ function password_show_hide() {
 
 function signIn() {
   console.log("sign in");
- let username = document.getElementById('username').value;
- let password = document.getElementById('password').value;
- let remember_me = document.getElementById('remember_me').checked;
-  console.log("USERNAME ", username)
+ let username = $('#username').val();
+ let password = $('#password').val();
+ let remember_me = $('#remember_me').is(':checked');
  var headers = new Headers();
  headers.append("Content-Type", "application/json");
  var raw = JSON.stringify({"email":username,"password":password});
