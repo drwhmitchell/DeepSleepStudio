@@ -273,7 +273,12 @@ var gCharts = [];
 var gViewingUTCOffset = moment().utcOffset();
 var gIsAuthorized = false;    // start out unauthorized
 var gFlettenCheckbox = false;
-
+var app = this;
+var ds_auth = getCookie('ds_auth');
+if(ds_auth){
+  ds_auth = JSON.parse(ds_auth);
+}
+console.log("DS AUTH ", ds_auth)
 // Preset the Date Picker to today's date
 const [currentDate, currentTime] = formatDate(new Date()).split(' ');
 const dateInput = document.getElementById('myDate');
@@ -289,7 +294,7 @@ var date = '2023-10-23';
 
 // On Page Load function
 function initializePage() {
-console.log("initializePage()");
+console.log("initializePage()");  
   var controlPanelEl = document.getElementById("control-panel"); 
   var resultsPanelEl = document.getElementById("sleep-data");  
   var securityEl = document.getElementById("security");  
@@ -303,6 +308,12 @@ console.log("initializePage()");
   gTruedCheckbox = false;
   truedCheckbox = false;
 
+  if(ds_auth){
+    console.log("HAS DS AUTH ")
+    gIsAuthorized = true;
+    prePopulateData(getDateOffset(), mt);
+  }
+  
   // If we are Authorized, display just the control panel
   if (gIsAuthorized) {
     controlPanelEl.style.display = "block";
@@ -314,6 +325,12 @@ console.log("initializePage()");
     controlPanelEl.style.display = "none";
     resultsPanelEl.style.display = "none";
   }
+}
+
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
 
@@ -334,19 +351,47 @@ function password_show_hide() {
   }
 }
 
-function password_validate() {
-  console.log("password_validate()");
+function signIn() {
+  console.log("sign in");
 
       // Get everything ready
  //var returnCode = authorizeUser(document.getElementById("username").value, document.getElementById("password").value);
  // Right now, force authorize, as CORS is blocking
-gIsAuthorized = true;
+ let username = document.getElementById('username').value;
+ let password = document.getElementById('password').value;
+ let remember_me = document.getElementById('remember_me').checked;
 
-  initializePage();
-  prePopulateData(getDateOffset(), mt);
-
+ var headers = new Headers();
+ headers.append("Content-Type", "application/json");
+ var raw = JSON.stringify({"email":username,"password":password});
+ 
+ var requestOptions = {
+   method: 'POST',
+   headers: headers,
+   body: raw,
+   redirect: 'follow'
+ };
+ 
+ fetch("https://sleepnet.appspot.com/acct/authenticate", requestOptions)
+   .then(response => response.text())
+   .then(result => {
+     console.log("LOGIN SUCCESS ", result);
+     if(remember_me){
+       document.cookie = "ds_auth=" + JSON.stringify(result);
+     }
+     else{
+      document.cookie = "";
+     }
+     app.ds_auth = result;
+     gIsAuthorized = true;
+    initializePage();
+   })
+   .catch(error => {
+     console.log('login err', err)
+   });
 //console.log("Got return code:" + JSON.stringify(returnCode));
 }
+
 
 function getCurrentUserToken() {
     // Grabs the currently selected user's token
@@ -756,7 +801,7 @@ async function fetchWhack2Data(token, model, dayOffset) {
 
   const res = await fetch('https://sleepnet.appspot.com/api/newwhack2/' + model + '/' + dayOffset, {
       headers: {
-      Authorization: 'Bearer ' + token
+      Authorization: 'Bearer ' + ds_auth.session
     }
   })
     .then (res => res.json())
@@ -777,7 +822,7 @@ async function fetchLeaderboard(dateOffset, token) {
 
     const res =  await fetch('https://sleepnet.appspot.com/api/admin/leaders/stat/window/Trued/sleep_efficiency/' + dateOffset + '/22/1/0/30', {
       headers: {
-      Authorization: 'Bearer ' + mt
+      Authorization: 'Bearer ' + ds_auth.session
     }
   })
     .catch(err => {console.log("Can't Fetch Leaderboard Data: " + err.response.data)})
@@ -801,7 +846,7 @@ async function fetchHypnoData(dayOffset, token) {
       const res = await fetch('https://sleepnet.appspot.com/api/hypnostats/' + dayOffset + "/22", {
     
           headers: {
-          Authorization: 'Bearer ' + token
+          Authorization: 'Bearer ' + ds_auth.session
         }
       })
         .then (res => res.json())
@@ -823,7 +868,7 @@ async function fetchHypnoData(dayOffset, token) {
         const res = await fetch('https://sleepnet.appspot.com/api/recordshour/' + dayOffset + "/22", {
      
             headers: {
-            Authorization: 'Bearer ' + token
+            Authorization: 'Bearer ' + ds_auth.session
           }
         })
           .then (res => res.json())
@@ -854,9 +899,9 @@ async function loginUser(email, password) {
   
   .then (res => res.json())
   .then(dataBack =>  { 
+    console.log("LOGGED IN ", dataBack)
     if (dataBack) {
       dsData = dataBack;
-      console.log("Got Login Data:" + JSON.stringify(dataBack));
     }
     else {
       console.log("Could not login!");
@@ -869,7 +914,10 @@ async function loginUser(email, password) {
       
   return(dsData);
 }     
-      
+
+
+
+
 
 
       
