@@ -296,21 +296,16 @@ var date = '2023-10-23';
 
 
 function logout(){
-  app.ds_auth = null;
-  
-  var requestOptions = {
-    method: 'DELETE',
-    redirect: 'follow'
-  };
-  
-  fetch("https://sleepnet.appspot.com/api/logout", requestOptions)
+  fetch("https://sleepnet.appspot.com/api/logout", getRequestOptions('DELETE'))
     .then(result => {
+      app.ds_auth = null;
       console.log("LOGOUT SUCCESS ", result);
       document.cookie = "_SleepNetSession=";
       document.cookie = "ds_auth=";
       location.reload();
     })
     .catch(error => {
+      app.ds_auth = null;
       console.log('LOGOUT err', err)
       document.cookie = "_SleepNetSession=";
       document.cookie = "ds_auth=";
@@ -451,15 +446,6 @@ function getDateOffset() {
     return(dateDelta);
   else 
     return(dateDelta + 1);
-}
-
-async function authorizeUser(email, password) {
-  pwAuth = await loginUser(email, password);
-
-  if (pwAuth) 
-    return true;
-  else
-    return false;
 }
 
 async function findOuraData(token, date) {
@@ -830,11 +816,7 @@ async function fetchWhack2Data( model, dayOffset) {
   var dsData = null;  
   console.log("fetchHypnoData()");
 
-  const res = await fetch('https://sleepnet.appspot.com/api/newwhack2/' + model + '/' + dayOffset, {
-      headers: {
-      Authorization: 'Bearer ' + app.ds_auth.session
-    }
-  })
+  const res = await fetch('https://sleepnet.appspot.com/api/newwhack2/' + model + '/' + dayOffset, getRequestOptions("GET"))
     .then (res => res.json())
     .then(dataBack =>  { 
        console.log("Fetching NewWhack2 Model=" + model + " Day=" + dayOffset + ": " + JSON.stringify(dataBack));
@@ -846,14 +828,19 @@ async function fetchWhack2Data( model, dayOffset) {
     return(dsData);
 }
 
+const getRequestOptions = (requestType) =>{
+  var headers = new Headers();
+  headers.append("Authorization", "Bearer " + app.ds_auth.session);
+   return {
+    method: requestType,
+    headers: headers,
+    redirect: 'follow'
+  };
+}
 
 async function fetchLeaderboard(dateOffset) {
-  var dsData = null;  
-    const res =  await fetch('https://sleepnet.appspot.com/api/admin/leaders/stat/window/Trued/sleep_efficiency/' + dateOffset + '/22/1/0/30', {
-      headers: {
-      Authorization: 'Bearer ' + app.ds_auth.session
-    }
-  })
+    var dsData = null;  
+    const res =  await fetch('https://sleepnet.appspot.com/api/admin/leaders/stat/window/Trued/sleep_efficiency/' + dateOffset + '/22/1/0/30', getRequestOptions("GET"))
     .catch(err => {console.log("Can't Fetch Leaderboard Data: " + err.response.data)})
     .then (res => res.json())
     .then(dataBack =>  { 
@@ -872,12 +859,7 @@ async function fetchHypnoData(dayOffset) {
       var dsData = null;  
       console.log("fetchHypnoData()");
     
-      const res = await fetch('https://sleepnet.appspot.com/api/hypnostats/' + dayOffset + "/22", {
-    
-          headers: {
-          Authorization: 'Bearer ' + app.ds_auth.session
-        }
-      })
+      const res = await fetch('https://sleepnet.appspot.com/api/hypnostats/' + dayOffset + "/22", getRequestOptions("GET"))
         .then (res => res.json())
         .then(dataBack =>  { 
    //       console.log("DEEPSLEEP HYPNOSTATS:" + JSON.stringify(dataBack));
@@ -894,12 +876,7 @@ async function fetchHypnoData(dayOffset) {
         var dsData = null;  
         console.log("fetchHealthkitData()");
       
-        const res = await fetch('https://sleepnet.appspot.com/api/recordshour/' + dayOffset + "/22", {
-     
-            headers: {
-            Authorization: 'Bearer ' + app.ds_auth.session
-          }
-        })
+        const res = await fetch('https://sleepnet.appspot.com/api/recordshour/' + dayOffset + "/22", getRequestOptions("GET"))
           .then (res => res.json())
           .then(dataBack =>  { 
             console.log("HEALTHKIT RECORDS:" + JSON.stringify(dataBack));
@@ -910,39 +887,7 @@ async function fetchHypnoData(dayOffset) {
       
           return(dsData);
       }
-  
- 
-async function loginUser(email, password) {
-  var dsData = null;  
-  console.log("loginUser() email='" + email + "' and password='" + password + "'");
-
-  var data = JSON.stringify({"email": email ,"password":password});
-   
-  const res = await fetch('https://sleepnet.appspot.com/api/login/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    data : data
-  })
-  
-  .then (res => res.json())
-  .then(dataBack =>  { 
-    console.log("LOGGED IN ", dataBack)
-    if (dataBack) {
-      dsData = dataBack;
-    }
-    else {
-      console.log("Could not login!");
-    }
-  })
-  .catch(function (error) {
-    console.log('LOGIN FAILED "' + error.message + '"')
-  });
-
-      
-  return(dsData);
-}     
+    
 
 
 
