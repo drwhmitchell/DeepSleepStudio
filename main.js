@@ -372,7 +372,7 @@ function signIn() {
    redirect: 'follow'
  };
  
- fetch("https://sleepnet.appspot.com/acct/authenticate", requestOptions)
+ fetch("https://sleepnet.appspot.com/api/login", requestOptions)
    .then(response => response.text())
    .then(result => {
      console.log("LOGIN SUCCESS ", result);
