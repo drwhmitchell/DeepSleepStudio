@@ -297,7 +297,7 @@ var date = '2023-10-23';
 
 function logout(){
   app.ds_auth = null;
-  document.cookie = "";
+  document.cookie = "ds_auth=";
   location.reload();
 }
 // On Page Load function
@@ -390,7 +390,7 @@ function signIn() {
        document.cookie = "ds_auth=" + JSON.stringify(result);
      }
      else{
-      document.cookie = "";
+      document.cookie = "ds_auth=";
      }
      app.ds_auth = result;
      initializePage();
