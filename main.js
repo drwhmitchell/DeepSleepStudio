@@ -297,9 +297,26 @@ var date = '2023-10-23';
 
 function logout(){
   app.ds_auth = null;
-  document.cookie = "_SleepNetSession=";
-  document.cookie = "ds_auth=";
-  location.reload();
+  
+  var requestOptions = {
+    method: 'DELETE',
+    redirect: 'follow'
+  };
+  
+  fetch("https://sleepnet.appspot.com/api/logout", requestOptions)
+    .then(result => {
+      console.log("LOGOUT SUCCESS ", result);
+      document.cookie = "_SleepNetSession=";
+      document.cookie = "ds_auth=";
+      location.reload();
+    })
+    .catch(error => {
+      console.log('LOGOUT err', err)
+      document.cookie = "_SleepNetSession=";
+      document.cookie = "ds_auth=";
+      location.reload();
+    });
+
 }
 // On Page Load function
 function initializePage() {
