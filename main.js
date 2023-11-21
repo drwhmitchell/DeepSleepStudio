@@ -309,12 +309,6 @@ console.log("initializePage()");
 
   gTruedCheckbox = false;
   truedCheckbox = false;
-
-  if(app.ds_auth){
-    console.log("HAS DS AUTH ", app.ds_auth)
-    gIsAuthorized = true;
-    prePopulateData(getDateOffset());
-  }
   
   // If we are Authorized, display just the control panel
   if (gIsAuthorized) {
@@ -386,7 +380,8 @@ function signIn() {
      }
      app.ds_auth = result;
      gIsAuthorized = true;
-    initializePage();
+     initializePage();
+     prePopulateData(getDateOffset());
    })
    .catch(error => {
      console.log('login err', err)
