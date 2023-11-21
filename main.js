@@ -278,7 +278,7 @@ var ds_auth = document.cookie;
 if(ds_auth){
   ds_auth = JSON.parse(ds_auth);
 }
-console.log("DS AUTH ", ds_auth)
+console.log("DS AUTH COOKIE ", ds_auth)
 // Preset the Date Picker to today's date
 const [currentDate, currentTime] = formatDate(new Date()).split(' ');
 const dateInput = document.getElementById('myDate');
@@ -309,7 +309,7 @@ console.log("initializePage()");
   truedCheckbox = false;
 
   if(app.ds_auth){
-    console.log("HAS DS AUTH ")
+    console.log("HAS DS AUTH ", app.ds_auth)
     gIsAuthorized = true;
     prePopulateData(getDateOffset(), mt);
   }
