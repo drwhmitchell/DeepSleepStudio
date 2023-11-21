@@ -377,14 +377,10 @@ function password_show_hide() {
 
 function signIn() {
   console.log("sign in");
-
-      // Get everything ready
- //var returnCode = authorizeUser(document.getElementById("username").value, document.getElementById("password").value);
- // Right now, force authorize, as CORS is blocking
  let username = document.getElementById('username').value;
  let password = document.getElementById('password').value;
  let remember_me = document.getElementById('remember_me').checked;
-
+  console.log("USERNAME ", username)
  var headers = new Headers();
  headers.append("Content-Type", "application/json");
  var raw = JSON.stringify({"email":username,"password":password});
@@ -395,27 +391,39 @@ function signIn() {
    body: raw,
    redirect: 'follow'
  };
- 
+ const loginErrorAlertId = 'loginErrAlert' ;
+ document.getElementById(loginErrorAlertId).style.visibility = 'hidden';
+ hideElement('loginErrAlert')
+ let loginResponse;
  fetch("https://sleepnet.appspot.com/api/login", requestOptions)
-   .then(response => response.json())
+   .then(response => {
+      loginResponse = response;
+      return response.json()
+   })
    .then(result => {
-     console.log("LOGIN SUCCESS ", result);
-     if(remember_me){
-       document.cookie = "ds_auth=" + JSON.stringify(result);
-     }
-     else{
-      document.cookie = "ds_auth=";
-     }
-     app.ds_auth = result;
-     initializePage();
-    //  gIsAuthorized = true;
-    //  initializePage();
-    //  prePopulateData(getDateOffset());
+      if(!loginResponse.ok){
+        document.getElementById(loginErrorAlertId).style.visibility = 'visible';
+        document.getElementById('loginErrMsg').innerHTML = 'Login Failed: ' + result.message;
+      }
+      else{
+        if(remember_me){
+          document.cookie = "ds_auth=" + JSON.stringify(result);
+        }
+        else{
+         document.cookie = "ds_auth=";
+        }
+        app.ds_auth = result;
+        initializePage();
+      }
    })
    .catch(error => {
-     console.log('login err', err)
+    document.getElementById(loginErrorAlertId).style.visibility = 'visible';
+    document.getElementById('loginErrMsg').innerHTML = 'Login Failed: Internal Server Error';
    });
-//console.log("Got return code:" + JSON.stringify(returnCode));
+}
+
+function hideElement(elementId){
+  document.getElementById(elementId).style.visibility = 'hidden';
 }
 
 
@@ -830,6 +838,7 @@ async function fetchWhack2Data( model, dayOffset) {
 
 const getRequestOptions = (requestType) =>{
   var headers = new Headers();
+  console.log('AUTHORIZATION BEARER ', app.ds_auth.session)
   headers.append("Authorization", "Bearer " + app.ds_auth.session);
    return {
     method: requestType,
