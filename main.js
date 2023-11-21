@@ -373,7 +373,7 @@ function signIn() {
  };
  
  fetch("https://sleepnet.appspot.com/api/login", requestOptions)
-   .then(response => response.text())
+   .then(response => response.json())
    .then(result => {
      console.log("LOGIN SUCCESS ", result);
      if(remember_me){
