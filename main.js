@@ -275,9 +275,9 @@ var gIsAuthorized = false;    // start out unauthorized
 var gFlettenCheckbox = false;
 const app = this;
 var ds_auth;
-if(getCookie('ds_auth')){
-  ds_auth = JSON.parse(getCookie('ds_auth'));
-}
+// if(getCookie('ds_auth')){
+//   ds_auth = JSON.parse(getCookie('ds_auth'));
+// }
 console.log("DS AUTH COOKIE ", ds_auth)
 
 
