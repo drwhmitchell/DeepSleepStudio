@@ -273,7 +273,7 @@ var gCharts = [];
 var gViewingUTCOffset = moment().utcOffset();
 var gIsAuthorized = false;    // start out unauthorized
 var gFlettenCheckbox = false;
-var app = this;
+const app = this;
 var ds_auth;
 if(getCookie('ds_auth')){
   ds_auth = JSON.parse(getCookie('ds_auth'));
@@ -325,6 +325,7 @@ console.log("initializePage()");
     controlPanelEl.style.display = "block";
     securityEl.style.display = "none";  // Hide login panel
     resultsPanelEl.style.display = "none";   // Hide results panel until we use control panel to generate some
+    document.getElementById('currentUserBadge').innerHTML = 'Logged in as <b>' +  ds_auth.user.email + '</b>';
   } else {
     // We're not Authorized yet so just show the security panel and hide the rest
     securityEl.style.display = "block";
