@@ -275,10 +275,12 @@ var gIsAuthorized = false;    // start out unauthorized
 var gFlettenCheckbox = false;
 var app = this;
 var ds_auth;
-if(getCookie('ds_auth')){
-  ds_auth = JSON.parse(getCookie('ds_auth'));
-}
-console.log("DS AUTH COOKIE ", ds_auth)
+// if(getCookie('ds_auth')){
+//   ds_auth = JSON.parse(getCookie('ds_auth'));
+// }
+// console.log("DS AUTH COOKIE ", ds_auth)
+
+
 // Preset the Date Picker to today's date
 const [currentDate, currentTime] = formatDate(new Date()).split(' ');
 const dateInput = document.getElementById('myDate');
@@ -311,7 +313,7 @@ console.log("initializePage()");
   if(app.ds_auth){
     console.log("HAS DS AUTH ", app.ds_auth)
     gIsAuthorized = true;
-    prePopulateData(getDateOffset(), mt);
+    prePopulateData(getDateOffset());
   }
   
   // If we are Authorized, display just the control panel
@@ -452,7 +454,7 @@ async function findWhack2Models() {
 
   // Now try each date offset starting with 0 until we hit a date with a sleep 
   for (i=0; i<4; i++) {
-    hypnoMeta = await fetchWhack2Data(DST, i, day);
+    hypnoMeta = await fetchWhack2Data(i, day);
     console.log('Whack2(' + i + ',' + day + ')=' + '' + JSON.stringify(hypnoMeta));
   }
 }
@@ -484,8 +486,8 @@ async function findLatest() {
   const maxSleepOffset = 90;
   var lastSleepOffset = maxSleepOffset;
   for (i=0; i<maxSleepOffset; i++) {  
-    const hypnoMeta = await fetchHypnoData(i, DST);
-    const heathKitRecs = await fetchHealthkitData(i, DST);
+    const hypnoMeta = await fetchHypnoData(i);
+    const heathKitRecs = await fetchHealthkitData(i);
     if (hypnoMeta || heathKitRecs) {
       lastSleepOffset = i;
       break;
@@ -526,7 +528,7 @@ function showSleep() {
 
 function refreshSleep() {
   initializePage();
-  prePopulateData(getDateOffset(), mt);
+  prePopulateData(getDateOffset());
 }
 
 
@@ -553,7 +555,7 @@ var gChartCount = 1;
 
 
 // Pre-populates the Users viewable based on Leaderboard APIs
-async function prePopulateData(dateOffset, token) {
+async function prePopulateData(dateOffset) {
 
   var userPicker = document.getElementById('user-select');
   var option;
@@ -561,7 +563,7 @@ async function prePopulateData(dateOffset, token) {
   // Remove any options if there are any already...
   userPicker.options.length = 0;
 
-  const leaderboard = await fetchLeaderboard(dateOffset, token);
+  const leaderboard = await fetchLeaderboard(dateOffset);
   if (leaderboard) {
     for (let i = 0; i < leaderboard.Leaders.length; i++) {
       console.log("Leaderboard API for " + JSON.stringify(leaderboard.Leaders[i].user.name) + " is: " + JSON.stringify(leaderboard.Leaders[i].sessions[0].uuid));
@@ -582,9 +584,9 @@ async function prePopulateData(dateOffset, token) {
   }
 }
 
-async function mainProgram(dateOffset, token) {
+async function mainProgram(dateOffset) {
   // Try to grab the union of all Hypno data we have for the user
-  const hypnoMeta = await fetchHypnoData(dateOffset, token);
+  const hypnoMeta = await fetchHypnoData(dateOffset);
 
   // Only render *anything* if we actually got back *some* hypno data
   if (hypnoMeta) {
@@ -597,7 +599,7 @@ async function mainProgram(dateOffset, token) {
     sleepDataEl.style.display = "block";
   
     // We only have Healthkit data if there was an AppleWatch detected....but it could be "bad Applewatch data"....
-    const heathKitRecs = await fetchHealthkitData(dateOffset, token);
+    const heathKitRecs = await fetchHealthkitData(dateOffset);
 
     // so we find 2 sets of extents...the default that's *with* AppleWatch data and an 'altExtents' without
     const extents = findExtents(hypnoMeta, true);   //  don't know if AppleWatch data is good yet...
@@ -795,7 +797,7 @@ console.log("NO HYPNO CHART, NO '" + source + "' Data");
 
 
 
-async function fetchWhack2Data(token, model, dayOffset) {
+async function fetchWhack2Data( model, dayOffset) {
   var dsData = null;  
   console.log("fetchHypnoData()");
 
@@ -816,7 +818,7 @@ async function fetchWhack2Data(token, model, dayOffset) {
 }
 
 
-async function fetchLeaderboard(dateOffset, token) {
+async function fetchLeaderboard(dateOffset) {
   var dsData = null;  
     const res =  await fetch('https://sleepnet.appspot.com/api/admin/leaders/stat/window/Trued/sleep_efficiency/' + dateOffset + '/22/1/0/30', {
       headers: {
@@ -837,7 +839,7 @@ async function fetchLeaderboard(dateOffset, token) {
 }
 
 
-async function fetchHypnoData(dayOffset, token) {
+async function fetchHypnoData(dayOffset) {
       var dsData = null;  
       console.log("fetchHypnoData()");
     
@@ -859,7 +861,7 @@ async function fetchHypnoData(dayOffset, token) {
     }
 
 
-    async function fetchHealthkitData(dayOffset, token) {
+    async function fetchHealthkitData(dayOffset) {
         var dsData = null;  
         console.log("fetchHealthkitData()");
       
