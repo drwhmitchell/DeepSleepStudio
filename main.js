@@ -274,7 +274,7 @@ var gViewingUTCOffset = moment().utcOffset();
 var gIsAuthorized = false;    // start out unauthorized
 var gFlettenCheckbox = false;
 var app = this;
-var ds_auth = getCookie('ds_auth');
+var ds_auth = document.cookie;
 if(ds_auth){
   ds_auth = JSON.parse(ds_auth);
 }
@@ -308,7 +308,7 @@ console.log("initializePage()");
   gTruedCheckbox = false;
   truedCheckbox = false;
 
-  if(ds_auth){
+  if(app.ds_auth){
     console.log("HAS DS AUTH ")
     gIsAuthorized = true;
     prePopulateData(getDateOffset(), mt);
@@ -801,7 +801,7 @@ async function fetchWhack2Data(token, model, dayOffset) {
 
   const res = await fetch('https://sleepnet.appspot.com/api/newwhack2/' + model + '/' + dayOffset, {
       headers: {
-      Authorization: 'Bearer ' + ds_auth.session
+      Authorization: 'Bearer ' + app.ds_auth.session
     }
   })
     .then (res => res.json())
@@ -818,11 +818,9 @@ async function fetchWhack2Data(token, model, dayOffset) {
 
 async function fetchLeaderboard(dateOffset, token) {
   var dsData = null;  
-  console.log("fetchLeaderboard()");
-
     const res =  await fetch('https://sleepnet.appspot.com/api/admin/leaders/stat/window/Trued/sleep_efficiency/' + dateOffset + '/22/1/0/30', {
       headers: {
-      Authorization: 'Bearer ' + ds_auth.session
+      Authorization: 'Bearer ' + app.ds_auth.session
     }
   })
     .catch(err => {console.log("Can't Fetch Leaderboard Data: " + err.response.data)})
@@ -846,7 +844,7 @@ async function fetchHypnoData(dayOffset, token) {
       const res = await fetch('https://sleepnet.appspot.com/api/hypnostats/' + dayOffset + "/22", {
     
           headers: {
-          Authorization: 'Bearer ' + ds_auth.session
+          Authorization: 'Bearer ' + app.ds_auth.session
         }
       })
         .then (res => res.json())
@@ -868,7 +866,7 @@ async function fetchHypnoData(dayOffset, token) {
         const res = await fetch('https://sleepnet.appspot.com/api/recordshour/' + dayOffset + "/22", {
      
             headers: {
-            Authorization: 'Bearer ' + ds_auth.session
+            Authorization: 'Bearer ' + app.ds_auth.session
           }
         })
           .then (res => res.json())
