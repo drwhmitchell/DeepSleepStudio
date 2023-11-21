@@ -274,9 +274,9 @@ var gViewingUTCOffset = moment().utcOffset();
 var gIsAuthorized = false;    // start out unauthorized
 var gFlettenCheckbox = false;
 var app = this;
-var ds_auth = document.cookie;
-if(ds_auth){
-  ds_auth = JSON.parse(ds_auth);
+var ds_auth;
+if(getCookie('ds_auth')){
+  ds_auth = JSON.parse(getCookie('ds_auth'));
 }
 console.log("DS AUTH COOKIE ", ds_auth)
 // Preset the Date Picker to today's date
