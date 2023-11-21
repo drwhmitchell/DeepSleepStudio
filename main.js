@@ -363,9 +363,6 @@ function signIn() {
 
  var headers = new Headers();
  headers.append("Content-Type", "application/json");
- headers.append("Access-Control-Allow-Origin", "http, https");
- headers.append("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTONS");
- headers.append("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
  var raw = JSON.stringify({"email":username,"password":password});
  
  var requestOptions = {
