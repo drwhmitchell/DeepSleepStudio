@@ -275,10 +275,10 @@ var gIsAuthorized = false;    // start out unauthorized
 var gFlettenCheckbox = false;
 var app = this;
 var ds_auth;
-// if(getCookie('ds_auth')){
-//   ds_auth = JSON.parse(getCookie('ds_auth'));
-// }
-// console.log("DS AUTH COOKIE ", ds_auth)
+if(getCookie('ds_auth')){
+  ds_auth = JSON.parse(getCookie('ds_auth'));
+}
+console.log("DS AUTH COOKIE ", ds_auth)
 
 
 // Preset the Date Picker to today's date
@@ -309,7 +309,11 @@ console.log("initializePage()");
 
   gTruedCheckbox = false;
   truedCheckbox = false;
-  
+
+  if(app.ds_auth){
+    gIsAuthorized = true;
+  }
+
   // If we are Authorized, display just the control panel
   if (gIsAuthorized) {
     controlPanelEl.style.display = "block";
@@ -320,6 +324,10 @@ console.log("initializePage()");
     securityEl.style.display = "block";
     controlPanelEl.style.display = "none";
     resultsPanelEl.style.display = "none";
+  }
+  
+  if(gIsAuthorized){
+    prePopulateData(getDateOffset());
   }
 }
 
@@ -379,9 +387,10 @@ function signIn() {
       document.cookie = "";
      }
      app.ds_auth = result;
-     gIsAuthorized = true;
      initializePage();
-     prePopulateData(getDateOffset());
+    //  gIsAuthorized = true;
+    //  initializePage();
+    //  prePopulateData(getDateOffset());
    })
    .catch(error => {
      console.log('login err', err)
