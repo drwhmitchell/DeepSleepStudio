@@ -44,20 +44,30 @@
           <div class="card-body">
             <div class="row">
               <div class="col">
-                <select name="user-select" id="user-select" style="width: 150px;" onchange="showSleep()"></select>
-<!--                 <option value="6e376e5e-848d-4c8c-4356-058480a7107d">Bill</option>                    
-                    <option value="Jack">Other...</option>
--->   
+                <input type="date" id="myDate" value="2022-02-12" onchange="refreshSleep()">
+
+                <select name="user-select" id="user-select" style="width: 150px;" onchange="userSelection()"></select>   
                 </select>                
 <!--                 <input type="text" id="myUserToken" value="" size="38">                      --> 
-                <input type="date" id="myDate" value="2022-02-12" onchange="refreshSleep()">
+
               </div>
               <div class="col">
+              <div class="alert alert-primary" id="status-alert" role="alert">
+                
+              </div>
+            </div>
+
+<!--
+                <div class="col">
                 <button type="button" class="btn btn-primary"  onclick="showSleep()">Refresh</button>
               </div>
-              <div class="col">
-                <input id="flattened" name="flattened" type="checkbox" onchange="flattenMovement()"> 
-                <label id="flattened-label" for="flattened">Dampened</label>     
+-->              
+              
+ <!--
+                <div class="col">
+               <input id="flattened" name="flattened" type="checkbox" onchange="flattenMovement()"> 
+               <label id="flattened-label" for="flattened">Dampened</label>  
+             
                 <label>&nbsp&nbsp</label>     
                 <input id="trued" name="trued" type="checkbox" onchange="trueTrue()"> 
                 <label id="trued-label" for="trued">Trued</label>     
@@ -65,13 +75,17 @@
                 <input id="synthesize" name="synthesize" type="checkbox" onclick="synthSleep()"> 
                 <label id="synthesize-label" for="synthesize">Synthesized</label>     
               </div>
+--> 
+<!-- 
               <div class="col">
                 <button type="button" class="btn btn-secondary"  onclick="flattenMovement()">Reduce Moves</button>
-<!--                <button type="button" class="btn btn-secondary"  onclick="findLatest()">Find Last</button>
+              
+                               <button type="button" class="btn btn-secondary"  onclick="findLatest()">Find Last</button>
                 <button type="button" class="btn btn-secondary"  onclick="findWhack2Models()">Compare</button>
                 <button type="button" class="btn btn-secondary"  onclick="synthSleep()">Synth</button>
--->
+              
               </div>
+ -->            
               <div class="col">
                 <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
                   <span id="currentUserBadge" style="flex:1;"> </span>
