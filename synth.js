@@ -134,7 +134,7 @@ async function synthSleep() {
   lastSleepDiv.style.display = "block";
 
   // Synthesize a Sleep Architecture for 10 last night to 6:30 this morning for a 60 male
-  const divEl = "chart-area1";
+  const divEl = "1";
   const startTime = LastNight(23, 0);
   const endTime = ThisMorning(7, 0);
 
