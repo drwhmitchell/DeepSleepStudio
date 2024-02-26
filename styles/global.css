@@ -1,0 +1,11 @@
+.login_oueter {
+    width: 360px;
+  }
+  .logo_outer {
+    text-align: center;
+  }
+  .logo_outer img {
+    width: 120px;
+    margin-bottom: 40px;
+  }
+  [v-cloak] { display: none; }

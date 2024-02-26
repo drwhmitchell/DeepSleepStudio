@@ -7,7 +7,6 @@
 // Returns a ref to the chart object so that it can be cleaned up
 function CreateHypnoChart(chartContainerID, titleText, startTime, endTime, sleepArch) {
   console.log("CreateHypnoChart with Start/End=" + startTime + "-" + endTime);
-  console.log("HYPNO DATA =" + sleepArch.hypno);
   var h = JSON.parse(sleepArch.hypno);
   var hypnoData = marshallSleepNetHypno(h);
   var newChartElID = "sleepBioChart" + Math.random()*10;
