@@ -24,7 +24,8 @@ const deepsleepAdminApp = new Vue({
   data() {
     return {
       // auth credentials
-      ds_auth: {"result":"success","session":"f7ee6b17-80dd-4a7c-7103-251cd6fbc80f","user":{"id":3,"uuid":"da43585a-aa16-4756-62e3-193a10fcb25e","email":"will@silvernovus.com","role":{"Int32":1,"Valid":true},"createdat":"2021-05-27T19:11:55.526684Z","name":"Will Mitchell","password":"","resetpassword":{"String":"","Valid":false},"resetuuid":{"String":"","Valid":false},"resetexpiration":{"Time":"0001-01-01T00:00:00Z","Valid":false},"lasttouch":{"Time":"2024-02-26T22:23:10.449499Z","Valid":true}}},
+      ds_auth: null,
+      // ds_auth: {"result":"success","session":"f7ee6b17-80dd-4a7c-7103-251cd6fbc80f","user":{"id":3,"uuid":"da43585a-aa16-4756-62e3-193a10fcb25e","email":"will@silvernovus.com","role":{"Int32":1,"Valid":true},"createdat":"2021-05-27T19:11:55.526684Z","name":"Will Mitchell","password":"","resetpassword":{"String":"","Valid":false},"resetuuid":{"String":"","Valid":false},"resetexpiration":{"Time":"0001-01-01T00:00:00Z","Valid":false},"lasttouch":{"Time":"2024-02-26T22:23:10.449499Z","Valid":true}}},
       // Login stuff
       login_params: {
         data: {
