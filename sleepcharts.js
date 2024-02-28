@@ -8,7 +8,7 @@
 function CreateHypnoChart(chartContainerID, titleText, startTime, endTime, sleepArch) {
   console.log("CreateHypnoChart with Start/End=" + startTime + "-" + endTime);
   var h = JSON.parse(sleepArch.hypno);
-  var hypnoData = marshallSleepNetHypno(h);
+  var hypnoData = SynthUtils.marshallSleepNetHypno(h);
   var newChartElID = "sleepBioChart" + Math.random()*10;
 
   var chartsHTML = document.getElementById(chartContainerID);
@@ -27,18 +27,18 @@ function CreateHypnoChart(chartContainerID, titleText, startTime, endTime, sleep
   // Tack on a line of stats
   newHTMLbuf += "<div class='text-center' style='background-color: #F5F4F8'>";
   newHTMLbuf += "<small>SCORE " + Math.round(sleepArch.score);
-  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp TST " + epochTimeToHours(sleepArch.tst) + " hours";
-  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp DEEP " + epochTimeToHours(CountStateTime("Deep", h)) + " hours";
-  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp REM " + epochTimeToHours(CountStateTime("REM", h)) + " hours";
-  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp AWAKE " + epochTimeToHours(CountStateTime("Wake", h)) + " hours";
+  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp TST " + Helpers.epochTimeToHours(sleepArch.tst) + " hours";
+  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp DEEP " + Helpers.epochTimeToHours(SynthUtils.CountStateTime("Deep", h)) + " hours";
+  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp REM " + Helpers.epochTimeToHours(SynthUtils.CountStateTime("REM", h)) + " hours";
+  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp AWAKE " + Helpers.epochTimeToHours(SynthUtils.CountStateTime("Wake", h)) + " hours";
   newHTMLbuf += "&nbsp&nbsp(Reported)</small><br>";
 
   // Now show recalc'd values
   newHTMLbuf += "<small>SCORE " + Math.round(sleepArch.score);
-  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp TST " + epochTimeToHours(h[h.length-1].y[1] - h[0].y[0]) + " hours";
-  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp DEEP " + epochTimeToHours(sleepArch.timedeep) + " hours";
-  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp REM " + epochTimeToHours(sleepArch.timerem) + " hours";
-  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp AWAKE " + epochTimeToHours(sleepArch.timeawake) + " hours";
+  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp TST " + Helpers.epochTimeToHours(h[h.length-1].y[1] - h[0].y[0]) + " hours";
+  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp DEEP " + Helpers.epochTimeToHours(sleepArch.timedeep) + " hours";
+  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp REM " + Helpers.epochTimeToHours(sleepArch.timerem) + " hours";
+  newHTMLbuf += "&nbsp &nbsp &nbsp &nbsp &nbsp AWAKE " + Helpers.epochTimeToHours(sleepArch.timeawake) + " hours";
   newHTMLbuf += "&nbsp&nbsp(Calculated)</small></div><br>";
 
   chartsHTML.innerHTML += newHTMLbuf;   // Append the new HTML
