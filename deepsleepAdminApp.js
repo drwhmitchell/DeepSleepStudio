@@ -44,7 +44,9 @@ const deepsleepAdminApp = new Vue({
       datePickerDate: '2022-02-12',
       chartArea: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       chartOptions:{
-        dampened: false
+        dampened: false,
+        trued: false,
+        synthesized: false
       }
     };
   },
@@ -114,10 +116,59 @@ const deepsleepAdminApp = new Vue({
           removeChart("Dampened");
         }
     },
+    // Walks through the Trued Hypno and adjusts the states based on the values of other hypnos
+    async trueTrue() {
+      if(this.chartOptions.trued) {
+        let dateDelta = Helpers.getDateOffset(this.datePickerDate);
+        const hypnoMeta = await this.fetchHypnoData(dateDelta);
+        // Only render *anything* if we actually got back *some* hypno data
+        if (hypnoMeta) {
+          // Show chart area
+          var sleepDataEl = document.getElementById("sleep-data");
+          console.log("Sleep Data DIV state='" + sleepDataEl.style.display + "'");
+          sleepDataEl.style.display = "block";
+
+          const extents = SynthUtils.findExtents(hypnoMeta, true);   
+          var startExtent = extents[0];
+          var endExtent = extents[1];
+
+          var sleepArch = Helpers.findSrc(hypnoMeta, "Trued");
+          
+          var newHypno = SynthUtils.flattenStates(JSON.parse(sleepArch.hypno), 'Wake', 'REM');   // squash any short Wake states to REMs
+          newHypno = SynthUtils.flattenStates(newHypno, 'REM', 'Light');       // squash any short REM states to Light
+          sleepArch.hypno = JSON.stringify(newHypno);        // Repackage this up as a stringified part of sleep arch
+
+          calcSleepStats(sleepArch);  // Now have to recalc sleep stats/KSIs
+
+          let chartIndex = gChartDiv + gChartCount++;
+          gCharts.push(addChart("True Trued", chartIndex, CreateHypnoChart(chartIndex, "True Trued", startExtent, endExtent, sleepArch)));
+        }
+      }
+      else{
+        removeChart("True Trued");
+      }  
+    },
+    async synthSleep() {
+      if(this.chartOptions.synthesized){
+        // Synthesize a Sleep Architecture for 10 last night to 6:30 this morning for a 60 male
+        const startTime = SynthUtils.LastNight(23, 0);
+        const endTime = SynthUtils.ThisMorning(7, 0);
+        sleepArch = SynthUtils.SynthHypno(startTime, endTime, 20);
+        console.log("Synthesized Hypno = " + sleepArch.hypno);
+        let chartIndex = gChartDiv + gChartCount++;
+        gCharts.push(addChart("Synthesized", chartIndex, CreateHypnoChart(chartIndex, "Synthesized", startTime, endTime, sleepArch)));
+      }
+      else{
+        removeChart("Synthesized");
+      }
+    },
     // HYPNO
     newShowSleep() {
       dateDelta = Helpers.getDateOffset(this.datePickerDate);
       this.mainProgram(dateDelta);
+      this.chartOptions.dampened = false;
+      this.chartOptions.trued = false;
+      this.chartOptions.synthesized = false;
     },
     async changeDate(){
       await this.prePopulateData();
@@ -313,7 +364,7 @@ function cleanUpAllCharts() {
 
   // Also nuke any elements "innerHTML"
   for (i = 1; i < gChartCount + 1; i++) {
-    Helpers.removeChartByID("chart-area" + i);
+    Helpers.removeChartByID(gChartDiv + i);
   }
   gChartCount = 1;
   gCharts = [];
@@ -353,10 +404,6 @@ function renderHypnoData(source, divEl, sleepMeta, min, max) {
     return null;
   }
 }
- 
-
-
-//  SYNTH.JS - Javascript lib for synthesizing Sleep Architectures
 
 // Population Data Sleep Averages by Age
 sleepAvgs = [ {Age: 5, TST: 536, Deep: 193, REM: 108, Light: 235, WakeT: 6},
@@ -372,50 +419,6 @@ sleepAvgs = [ {Age: 5, TST: 536, Deep: 193, REM: 108, Light: 235, WakeT: 6},
 ];
 
 
-// Walks through the Trued Hypno and adjusts the states based on the values of other hypnos
-async function trueTrue() {
-  console.log("TRUE TRUE MOVEMENT...");
-
-  var truedCheckbox = document.getElementById("trued");
-  if (gTruedCheckbox) {
-    console.log("Flatten Checkbox already Checked!!!");
-    truedCheckbox.checked = true;
-  }
-  else {
-    gTruedCheckbox = true;
-    const hypnoMeta = await fetchHypnoData(Helpers.getDateOffset(), getCurrentUserToken());
-    // Only render *anything* if we actually got back *some* hypno data
-    if (hypnoMeta) {
-      // Show chart area
-      var sleepDataEl = document.getElementById("sleep-data");
-      console.log("Sleep Data DIV state='" + sleepDataEl.style.display + "'");
-      sleepDataEl.style.display = "block";
-
-      const extents = SynthUtils.findExtents(hypnoMeta, true);   
-      var startExtent = extents[0];
-      var endExtent = extents[1];
-
-      var sleepArch = Helpers.findSrc(hypnoMeta, "Trued");
-      
-      var newHypno = SynthUtils.flattenStates(JSON.parse(sleepArch.hypno), 'Wake', 'REM');   // squash any short Wake states to REMs
-      newHypno = SynthUtils.flattenStates(newHypno, 'REM', 'Light');       // squash any short REM states to Light
-      sleepArch.hypno = JSON.stringify(newHypno);        // Repackage this up as a stringified part of sleep arch
-
-      calcSleepStats(sleepArch);  // Now have to recalc sleep stats/KSIs
-
-      let chartIndex = gChartDiv + gChartCount++;
-      gCharts.push(addChart("True Trued", chartIndex, CreateHypnoChart(chartIndex, "True Trued", startExtent, endExtent, sleepArch)));
-    }
-    else
-      console.log("ERROR: Cannot True True Chart...no Hypno data!!!");
-  }  
-}
-
-
-
-// Flattens the movement data in the main sleep 
-
-
 function calcSleepStats(sleepArch) {
 
   var h = JSON.parse(sleepArch.hypno);
@@ -429,34 +432,6 @@ function calcSleepStats(sleepArch) {
   sleepArch.timeawake = SynthUtils.CountStateTime("Wake", h);
 }
 
-
-// Top level request to synthesize a sleep model and display it as a Hypno Chart
-async function synthSleep() {
-
-  var resultsPanelEl = document.getElementById("sleep-data");  
-  var synthedSleep = null;
-
-  initializePage();
- // cleanUpAllCharts();
-
-  lastSleepDiv = document.getElementById("lastSleep-amt");
-
-  resultsPanelEl.style.display = "block";   
-  lastSleepDiv.style.display = "block";
-
-  // Synthesize a Sleep Architecture for 10 last night to 6:30 this morning for a 60 male
-  const divEl = "1";
-  const startTime = SynthUtils.LastNight(23, 0);
-  const endTime = SynthUtils.ThisMorning(7, 0);
-
-  sleepArch = SynthUtils.SynthHypno(startTime, endTime, 20);
-  console.log("Synthesized Hypno = " + sleepArch.hypno);
-  let chartIndex = gChartDiv + gChartCount++;
-  gCharts.push(addChart("Synthesized", chartIndex, CreateHypnoChart(chartIndex, "Synthesized", startTime, endTime, sleepArch)));
-
-  var newSleepArch, warpIndex, sleepState;
-  return (newSleepArch);
-}
 
 
 

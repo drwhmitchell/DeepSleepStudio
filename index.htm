@@ -54,34 +54,23 @@
                 </div>
               </div>
               <div class="row">
-
                 <div class="col">
                 <button type="button" class="btn btn-primary"  v-on:click="newShowSleep()">Refresh</button>
               </div>
-           
-              
-
-                <div class="col">
+              <div class="col">
                <input id="flattened" name="flattened" type="checkbox" v-model="chartOptions.dampened"  v-on:change="flattenMovement()"> 
                <label id="flattened-label" for="flattened">Dampened</label>  
-             
                 <label>&nbsp&nbsp</label>     
-                <input id="trued" name="trued" type="checkbox" onchange="trueTrue()"> 
+                <input id="trued" name="trued" type="checkbox" v-model="chartOptions.trued"  v-on:change="trueTrue()"> 
                 <label id="trued-label" for="trued">Trued</label>     
                 <label>&nbsp&nbsp</label>     
-                <input id="synthesize" name="synthesize" type="checkbox" onclick="synthSleep()"> 
+                <input id="synthesize" name="synthesize" type="checkbox" v-model="chartOptions.synthesized"  v-on:change="synthSleep()"> 
                 <label id="synthesize-label" for="synthesize">Synthesized</label>     
               </div>
-
-
-              <div class="col">
-                <button type="button" class="btn btn-secondary"  onclick="flattenMovement()">Reduce Moves</button>
-              
-                               <button type="button" class="btn btn-secondary"  onclick="findLatest()">Find Last</button>
+              <!-- <div class="col">              
+                <button type="button" class="btn btn-secondary"  onclick="findLatest()">Find Last</button>
                 <button type="button" class="btn btn-secondary"  onclick="findWhack2Models()">Compare</button>
-                <button type="button" class="btn btn-secondary"  onclick="synthSleep()">Synth</button>
-              
-              </div>
+              </div> -->
             
               </div>
             </div>

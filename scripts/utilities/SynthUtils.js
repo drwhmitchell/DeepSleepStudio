@@ -34,7 +34,7 @@ class SynthUtils {
   
     static createSleepState(state, cycleNo, t, age) {
       const millisecToMin = 60000;
-      var start, end;
+      var start, end, ageCycleMins, deepCycleMins;
     
       switch (state) {
         case "Wake"  : 
@@ -96,14 +96,14 @@ class SynthUtils {
         const cycleStates = ["Wake", "Light", "Deep", "REM"];
         var h;
         var sleepState;
-      
+        var cycleNo;
         // Cycle through as many 'P90' cycles as we need to to fill in between 'startTime' and 'endTime' with sleep states
         h = [];
         cycleNo = 0;
         var now = startTime;
         while (now < endTime) {
       
-          for (phase=0; phase < cycleStates.length; phase++) {
+          for (let phase=0; phase < cycleStates.length; phase++) {
             sleepState = this.createSleepState(cycleStates[phase], cycleNo, now, age); 
             now = sleepState.y[1];
             if (now >= endTime) {
