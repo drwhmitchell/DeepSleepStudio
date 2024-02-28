@@ -53,6 +53,37 @@
                   </div>
                 </div>
               </div>
+              <div class="row">
+
+                <div class="col">
+                <button type="button" class="btn btn-primary"  v-on:click="newShowSleep()">Refresh</button>
+              </div>
+           
+              
+
+                <div class="col">
+               <input id="flattened" name="flattened" type="checkbox" v-model="chartOptions.dampened"  v-on:change="flattenMovement()"> 
+               <label id="flattened-label" for="flattened">Dampened</label>  
+             
+                <label>&nbsp&nbsp</label>     
+                <input id="trued" name="trued" type="checkbox" onchange="trueTrue()"> 
+                <label id="trued-label" for="trued">Trued</label>     
+                <label>&nbsp&nbsp</label>     
+                <input id="synthesize" name="synthesize" type="checkbox" onclick="synthSleep()"> 
+                <label id="synthesize-label" for="synthesize">Synthesized</label>     
+              </div>
+
+
+              <div class="col">
+                <button type="button" class="btn btn-secondary"  onclick="flattenMovement()">Reduce Moves</button>
+              
+                               <button type="button" class="btn btn-secondary"  onclick="findLatest()">Find Last</button>
+                <button type="button" class="btn btn-secondary"  onclick="findWhack2Models()">Compare</button>
+                <button type="button" class="btn btn-secondary"  onclick="synthSleep()">Synth</button>
+              
+              </div>
+            
+              </div>
             </div>
           </div>
         </div>
@@ -119,12 +150,14 @@
     </div>
   </div>
       <!-- Bootstrap JS -->
-      <script src="scripts/jquery.min.js"></script>
-      <script src="scripts/vue.js"></script>
+      <script src="scripts/resources/jquery.min.js"></script>
+      <script src="scripts/resources/vue.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
       <!-- Code for the main program  -->
+      <script src="scripts/utilities/Cookies.js"></script>
+      <script src="scripts/utilities/Helpers.js"></script>
+      <script src="scripts/utilities/SynthUtils.js"></script>
       <script src="sleepcharts.js"></script>
-      <script src="synth.js"></script>
       <script src="deepsleepAdminApp.js"></script>
 </body>
 </html>
