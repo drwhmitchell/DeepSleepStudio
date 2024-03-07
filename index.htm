@@ -33,7 +33,7 @@
                   <input v-model="datePickerDate" class="form-control" type="date" id="myDate" value="2022-02-12" v-on:change="changeDate()">
                 </div>
                 <div class="col-sm-6 col-md-2" style="padding-top: 5px;">
-                  <select v-model="selectedUser" name="user-select" class="form-control"  v-on:change="newShowSleep()">
+                  <select v-model="selectedUser" name="user-select" class="form-control"  v-on:change="refreshUser()">
                     <option v-for="leader in leaderboard.Leaders" v-bind:value="leader" v-bind:disabled="!(leader.sessions && leader.sessions.length > 0)">
                       {{leader.user.name}} {{!(leader.sessions && leader.sessions.length > 0) ? ' (No Sessions found) ' : ''}}
                     </option>
@@ -55,7 +55,7 @@
               </div>
               <div class="row">
                 <div class="col">
-                <button type="button" class="btn btn-primary"  v-on:click="newShowSleep()">Refresh</button>
+                <button type="button" class="btn btn-primary"  v-on:click="refreshUser()">Refresh</button>
               </div>
               <div class="col">
                <input id="flattened" name="flattened" type="checkbox" v-model="chartOptions.dampened"  v-on:change="flattenMovement()"> 
@@ -80,8 +80,23 @@
         <div id="sleep-data">
           <div class="card">
             <div class="card-body">
-              <div id="lastSleep-amt"></div>
+              <!-- OLD -->
               <div v-for="i in chartArea" v-bind:id="'chart-area' + i"></div>
+              <!-- NEW -->
+              <div v-for="(chart,index) in charts">
+                <!-- HYPNO CHART -->
+                <div v-if="chart.chartType == 'hypno'">
+                  <hypno-chart :chart="chart" :index="index"></hypno-chart>
+                </div>
+                <!-- BIO CHART -->
+                <div v-if="chart.chartType == 'bio'">
+                  <bio-chart :chart="chart" :index="index"></bio-chart>
+                </div>
+                <div v-if="chart.chartType == 'sleep-records'">
+                  <records-chart :chart="chart" :index="index"></records-chart>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -146,7 +161,9 @@
       <script src="scripts/utilities/Cookies.js"></script>
       <script src="scripts/utilities/Helpers.js"></script>
       <script src="scripts/utilities/SynthUtils.js"></script>
-      <script src="sleepcharts.js"></script>
+      <script src="components/hypno-chart.js"></script>
+      <script src="components/bio-chart.js"></script>
+      <script src="components/records.chart.js"></script>
       <script src="deepsleepAdminApp.js"></script>
 </body>
 </html>

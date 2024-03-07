@@ -1,15 +1,13 @@
 //******************************************************************************************************
-// GLOBALS
-//******************************************************************************************************
-const gChartDiv = "chart-area";
-var gChartCount = 1;
-var gCharts = [];
-
-//******************************************************************************************************
 // VUE APP
 //******************************************************************************************************
 const deepsleepAdminApp = new Vue({
   el: '#deepsleepAdminApp',
+  components:{
+    HypnoChart,
+    BioChart,
+    RecordsChart
+  },
   mounted() {
     let yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
@@ -18,14 +16,14 @@ const deepsleepAdminApp = new Vue({
       this.ds_auth = JSON.parse(Cookies.Get('ds_auth'));
     }
     if(this.ds_auth){
-      this.prePopulateData();
+      this.setLeaderboard();
     }
   },
   data() {
     return {
       // auth credentials
       ds_auth: null,
-      // ds_auth: {"result":"success","session":"f7ee6b17-80dd-4a7c-7103-251cd6fbc80f","user":{"id":3,"uuid":"da43585a-aa16-4756-62e3-193a10fcb25e","email":"will@silvernovus.com","role":{"Int32":1,"Valid":true},"createdat":"2021-05-27T19:11:55.526684Z","name":"Will Mitchell","password":"","resetpassword":{"String":"","Valid":false},"resetuuid":{"String":"","Valid":false},"resetexpiration":{"Time":"0001-01-01T00:00:00Z","Valid":false},"lasttouch":{"Time":"2024-02-26T22:23:10.449499Z","Valid":true}}},
+      ds_auth: {"result":"success","session":"12e80912-950f-4e52-7f8e-9bc403b7cdea","user":{"id":3,"uuid":"da43585a-aa16-4756-62e3-193a10fcb25e","email":"will@silvernovus.com","role":{"Int32":1,"Valid":true},"createdat":"2021-05-27T19:11:55.526684Z","name":"Will Mitchell","password":"","resetpassword":{"String":"","Valid":false},"resetuuid":{"String":"","Valid":false},"resetexpiration":{"Time":"0001-01-01T00:00:00Z","Valid":false},"lasttouch":{"Time":"2024-03-05T21:48:03.331513Z","Valid":true}}},
       // Login stuff
       login_params: {
         data: {
@@ -48,20 +46,22 @@ const deepsleepAdminApp = new Vue({
         dampened: false,
         trued: false,
         synthesized: false
-      }
+      },
+      flattenStatesAmount:5,
+      charts: []
     };
   },
   methods: {
     // App
-    async prePopulateData() {
+    async setLeaderboard() {
       this.setStatusAlert('...Loading Customer Data...');
-      const leaderboard = await this.fetchLeaderboard(Helpers.getDateOffset(this.datePickerDate));
+      const leaderboard = await this.fetchLeaderboard();
       if (leaderboard) {
         this.leaderboard = leaderboard;
         if (!this.leaderboard.Leaders) {
           this.leaderboard.Leaders = [];
         }
-        console.log(this.leaderboard.Leaders)
+        console.log(JSON.stringify(this.leaderboard.Leaders))
         this.setStatusAlert('Loaded ' + this.leaderboard.Leaders.length + " customers.");
       } else {
         this.setErrorAlert("Error:  No DeepSleep Users Found!");
@@ -79,7 +79,7 @@ const deepsleepAdminApp = new Vue({
     },
     oldGetRequestOptions(requestType) {
       var headers = new Headers();
-      console.log('AUTHORIZATION BEARER ', this.ds_auth.session)
+      // console.log('AUTHORIZATION BEARER ', this.ds_auth.session)
       headers.append("Authorization", "Bearer " + this.ds_auth.session);
       return {
         method: requestType,
@@ -88,91 +88,103 @@ const deepsleepAdminApp = new Vue({
       };
     },
     // MODS:
+    addHypnoChart(name, extents, sleepArch){
+      this.charts.push({
+        chartName: name,
+        sleepExtents: extents,
+        sleepArch: sleepArch,
+        chartType: 'hypno'
+      });
+    },
+    addBioChart(name, extents, hrData, aeData){
+      this.charts.push({
+        chartName: name,
+        sleepExtents: extents,
+        hrData: hrData,
+        aeData: aeData,
+        chartType: 'bio'
+      })
+    },
+    addRecordsChart(name, extents,inBedData, asleepData){
+      this.charts.push({
+        chartName: name, 
+        sleepExtents: extents,
+        inBedData: inBedData,
+        asleepData: asleepData,
+        chartType: 'sleep-records'
+      })
+    },
+    removeChart(name){
+      this.charts = this.charts.filter(x=>{
+        return x.chartName != name;
+      });
+    },
     async flattenMovement() {
         if(this.chartOptions.dampened){
-          let dateDelta = Helpers.getDateOffset(this.datePickerDate);
-          const hypnoMeta = await this.fetchHypnoData(dateDelta);
+          const hypnoMeta = await this.fetchHypnoData();
           // Only render *anything* if we actually got back *some* hypno data
           if (hypnoMeta) {
-            // Show chart area
-            var sleepDataEl = document.getElementById("sleep-data");
-            console.log("Sleep Data DIV state='" + sleepDataEl.style.display + "'");
-            sleepDataEl.style.display = "block";
-      
             const extents = SynthUtils.findExtents(hypnoMeta, true);   
-            var startExtent = extents[0];
-            var endExtent = extents[1];
             if(this.chartOptions.dampened){
               var sleepArch = Helpers.findSrc(hypnoMeta, "Trued");
-              var newHypno = SynthUtils.flattenStates(JSON.parse(sleepArch.hypno), 'Wake', 'REM');   // squash any short Wake states to REMs
-              newHypno = SynthUtils.flattenStates(newHypno, 'REM', 'Light');       // squash any short REM states to Light
+              // var newHypno = SynthUtils.flattenStates(JSON.parse(sleepArch.hypno), 'Wake', 'REM');   // squash any short Wake states to REMs
+              // newHypno = SynthUtils.flattenStates(newHypno, 'REM', 'Light');       // squash any short REM states to Light
+              var newHypno = SynthUtils.newFlattenStates(JSON.parse(sleepArch.hypno), this.flattenStatesAmount);
               sleepArch.hypno = JSON.stringify(newHypno);        // Repackage this up as a stringified part of sleep arch
               calcSleepStats(sleepArch);  // Now have to recalc sleep stats/KSIs
-              let chartIndex = gChartDiv + gChartCount++;
-              gCharts.push(addChart("Dampened", chartIndex, CreateHypnoChart(chartIndex, "Dampened Movement", startExtent, endExtent, sleepArch)));
+              this.addHypnoChart("Dampened Movement", extents, sleepArch);
             }
           } 
         }
         else{
-          removeChart("Dampened");
+          this.removeChart("Dampened Movement");
         }
     },
     // Walks through the Trued Hypno and adjusts the states based on the values of other hypnos
     async trueTrue() {
       if(this.chartOptions.trued) {
-        let dateDelta = Helpers.getDateOffset(this.datePickerDate);
-        const hypnoMeta = await this.fetchHypnoData(dateDelta);
+        const hypnoMeta = await this.fetchHypnoData();
         // Only render *anything* if we actually got back *some* hypno data
         if (hypnoMeta) {
-          // Show chart area
-          var sleepDataEl = document.getElementById("sleep-data");
-          console.log("Sleep Data DIV state='" + sleepDataEl.style.display + "'");
-          sleepDataEl.style.display = "block";
-
           const extents = SynthUtils.findExtents(hypnoMeta, true);   
-          var startExtent = extents[0];
-          var endExtent = extents[1];
-
           var sleepArch = Helpers.findSrc(hypnoMeta, "Trued");
-          
-          var newHypno = SynthUtils.flattenStates(JSON.parse(sleepArch.hypno), 'Wake', 'REM');   // squash any short Wake states to REMs
-          newHypno = SynthUtils.flattenStates(newHypno, 'REM', 'Light');       // squash any short REM states to Light
+          // var newHypno = SynthUtils.flattenStates(JSON.parse(sleepArch.hypno), 'Wake', 'REM');   // squash any short Wake states to REMs
+          // newHypno = SynthUtils.flattenStates(newHypno, 'REM', 'Light');       // squash any short REM states to Light
+          var newHypno = SynthUtils.newFlattenStates(JSON.parse(sleepArch.hypno), this.flattenStatesAmount)
           sleepArch.hypno = JSON.stringify(newHypno);        // Repackage this up as a stringified part of sleep arch
-
           calcSleepStats(sleepArch);  // Now have to recalc sleep stats/KSIs
+          this.addHypnoChart("True Trued", extents, sleepArch);
 
-          let chartIndex = gChartDiv + gChartCount++;
-          gCharts.push(addChart("True Trued", chartIndex, CreateHypnoChart(chartIndex, "True Trued", startExtent, endExtent, sleepArch)));
         }
       }
       else{
-        removeChart("True Trued");
+        this.removeChart("True Trued");
       }  
     },
     async synthSleep() {
       if(this.chartOptions.synthesized){
         // Synthesize a Sleep Architecture for 10 last night to 6:30 this morning for a 60 male
-        const startTime = SynthUtils.LastNight(23, 0);
-        const endTime = SynthUtils.ThisMorning(7, 0);
+        let extents = {
+          start: SynthUtils.LastNight(23, 0),
+          end: SynthUtils.ThisMorning(7, 0)
+        }
         sleepArch = SynthUtils.SynthHypno(startTime, endTime, 20);
-        console.log("Synthesized Hypno = " + sleepArch.hypno);
-        let chartIndex = gChartDiv + gChartCount++;
-        gCharts.push(addChart("Synthesized", chartIndex, CreateHypnoChart(chartIndex, "Synthesized", startTime, endTime, sleepArch)));
+        this.addHypnoChart("Synthesized", extents, sleepArch);
       }
       else{
-        removeChart("Synthesized");
+        this.removeChart("Synthesized");
       }
     },
     // HYPNO
-    newShowSleep() {
-      dateDelta = Helpers.getDateOffset(this.datePickerDate);
-      this.mainProgram(dateDelta);
+    refreshUser() {
+      this.getUserData();
+      this.charts = [];
       this.chartOptions.dampened = false;
       this.chartOptions.trued = false;
       this.chartOptions.synthesized = false;
     },
     async changeDate(){
-      await this.prePopulateData();
+      await this.setLeaderboard();
       if(this.leaderboard.Leaders && this.leaderboard.Leaders.length > 0){
         if(this.selectedUser){
           let matches = this.leaderboard.Leaders.filter(x=>{return x.user.id == this.selectedUser.user.id});
@@ -180,25 +192,25 @@ const deepsleepAdminApp = new Vue({
             this.selectedUser = matches[0];
             console.log('SELECTED USER ', this.selectedUser)
             this.setStatusAlert("Loading data for " + this.selectedUser.user.name + '...')
-            this.newShowSleep();
+            this.refreshUser();
           }
           else{
-            cleanUpAllCharts();
+            this.charts = [];
           }
         }
       }
       else{
-        cleanUpAllCharts();
+        this.charts = []
       }
       
     },
-    async mainProgram(dateOffset) {
+    async getUserData() {
       // Try to grab the union of all Hypno data we have for the user
-      const hypnoMeta = await this.fetchHypnoData(dateOffset);
+      const hypnoMeta = await this.fetchHypnoData();
       // Only render *anything* if we actually got back *some* hypno data
       if (hypnoMeta) {
         // We only have Healthkit data if there was an AppleWatch detected....but it could be "bad Applewatch data"....
-        const heathKitRecs = await this.fetchHealthkitData(dateOffset);
+        const heathKitRecs = await this.fetchHealthkitData();
         this.convertHypnoDataToLocal(hypnoMeta, heathKitRecs);
         this.setStatusAlert('Showing data for ' + this.selectedUser.user.name)
       }
@@ -224,20 +236,66 @@ const deepsleepAdminApp = new Vue({
           x.hypno = JSON.stringify(hypno);
         })
       }
-      drawCharts(hypnoMeta, heathKitRecs);
+      this.drawCharts(hypnoMeta, heathKitRecs);
+    },
+    drawCharts(hypnoMeta, heathKitRecs){
+      this.charts = []; // Get ready to draw new hypnos and biometrics by erasing old stuff
+      // so we find 2 sets of extents...the default that's *with* AppleWatch data and an 'altExtents' without
+      let extents = SynthUtils.findExtents(hypnoMeta, true); //  don't know if AppleWatch data is good yet...
+      let allExtents = SynthUtils.findExtents(hypnoMeta, false)
+      if (heathKitRecs) {
+        const hrRecList = Helpers.marshallHealthkitRecords('HKQuantityTypeIdentifierHeartRate', heathKitRecs);
+        const aeRecList = Helpers.marshallHealthkitRecords('HKQuantityTypeIdentifierActiveEnergyBurned', heathKitRecs);
+        const xformedAErecList = SynthUtils.xformAERecs(aeRecList); // pads out the AE records so they can be used in a Stepped Line chart
+        // See what our time range is for all records assuming AppleWatch data is good
+        const inBedSleepDataLists = Helpers.marshallHealthkitSleepRecords(heathKitRecs, extents.start, extents.end);
+        const inBedDataCount = (inBedSleepDataLists[0].length) / 2 - 1;
+        const asleepDataCount = inBedSleepDataLists[1].length;
+    
+        // If we have valid AppleWatch data
+        if (inBedDataCount && asleepDataCount) {
+    
+          // Only show AppleWatch data if we think we legitimately have some.   Determined by having non-zero InBed and Asleep records
+          this.addBioChart("Biometrics", extents,  hrRecList, xformedAErecList);
+          this.addRecordsChart('HK RECORDS', extents, inBedSleepDataLists[0], inBedSleepDataLists[1]);
+          this.adChartFromHypnoMeta("SleepSignal_Hypno", hypnoMeta, extents)
+        } 
+        else {
+          // Don't have valid AppleWatch Data so recalc extents data
+          console.log("Excluding AppleWatch Data");
+          extents = allExtents;
+        }
+      } 
+      else {
+        extents = allExtents
+      }
+      ["Oura", "Withings", "Fitbit", "Garmin", "Feel", "Trued"].forEach(src => {
+        this.adChartFromHypnoMeta(src, hypnoMeta, extents);
+      });
+    },
+    adChartFromHypnoMeta(source, sleepMeta, extents){
+      const sleepArch = Helpers.findSrc(sleepMeta, source);
+      if (sleepArch) {
+        console.log(`==> HypnoStat UTC Offset(${source})=${sleepArch.utcoffset}`);
+        console.log(`Stats for ${source}=[${Math.round(sleepArch.score)}/${Helpers.epochTimeToHours(sleepArch.timedeep)}/${Helpers.epochTimeToHours(sleepArch.timerem)}/${Helpers.epochTimeToHours(sleepArch.timeawake)}]`);
+        this.addHypnoChart(source, extents, sleepArch)
+      } 
+      else {
+        console.log(`NO HYPNO CHART, NO '${source}' Data`);
+      }
     },
     // API CALLS
-    async fetchLeaderboard(dateOffset) {
-      return await Helpers.Fetch('https://sleepnet.appspot.com/api/admin/leaders/stat/window/Trued/sleep_efficiency/' + dateOffset + '/22/1/0/30', this.oldGetRequestOptions("GET"));
+    async fetchLeaderboard() {
+      return await Helpers.Fetch('https://sleepnet.appspot.com/api/admin/leaders/stat/window/Trued/sleep_efficiency/' + Helpers.getDateOffset(this.datePickerDate) + '/22/1/0/30', this.oldGetRequestOptions("GET"));
     },
-    async fetchHealthkitData(dayOffset) {
-      return await Helpers.Fetch('https://sleepnet.appspot.com/api/recordshour/' + dayOffset + "/22", this.getRequestOptions("GET"));
+    async fetchHealthkitData() {
+      return await Helpers.Fetch('https://sleepnet.appspot.com/api/recordshour/' + Helpers.getDateOffset(this.datePickerDate) + "/22", this.getRequestOptions("GET"));
     },
-    async fetchHypnoData(dayOffset) {
-      return await Helpers.Fetch('https://sleepnet.appspot.com/api/hypnostats/' + dayOffset + "/22", this.getRequestOptions("GET"));
+    async fetchHypnoData() {
+      return await Helpers.Fetch('https://sleepnet.appspot.com/api/hypnostats/' + Helpers.getDateOffset(this.datePickerDate) + "/22", this.getRequestOptions("GET"));
     },
-    async fetchWhack2Data(model, dayOffset) {
-      return await Helpers.Fetch('https://sleepnet.appspot.com/api/newwhack2/' + model + '/' + dayOffset, this.getRequestOptions("GET"));
+    async fetchWhack2Data(model) {
+      return await Helpers.Fetch('https://sleepnet.appspot.com/api/newwhack2/' + model + '/' + Helpers.getDateOffset(this.datePickerDate), this.getRequestOptions("GET"));
     },
     // Alerts
     setStatusAlert(message) {
@@ -272,14 +330,16 @@ const deepsleepAdminApp = new Vue({
         } else {
           if (this.login_params.remember_me) {
             Cookies.Set("ds_auth", JSON.stringify(response));
-          } else {
+          } 
+          else {
             Cookies.Erase("ds_auth");
           }
           this.ds_auth = response;
           console.log('LOGIN RESPONSE ', JSON.stringify(response))
-          this.prePopulateData();
+          this.setLeaderboard();
         }
-      } else {
+      } 
+      else {
         this.login_error_msg = 'Login Failed: Internal Server Error'
       }
     },
@@ -304,107 +364,10 @@ const deepsleepAdminApp = new Vue({
   }
 });
 
+
 //******************************************************************************************************
 // END APP - OTHER FUNCTIONS
 //******************************************************************************************************
-
-function drawCharts(hypnoMeta, heathKitRecs) {
-  cleanUpAllCharts(); // Get ready to draw new hypnos and biometrics by erasing old stuff
-  // so we find 2 sets of extents...the default that's *with* AppleWatch data and an 'altExtents' without
-  const extents = SynthUtils.findExtents(hypnoMeta, true); //  don't know if AppleWatch data is good yet...
-  const altExtents = SynthUtils.findExtents(hypnoMeta, true);
-  console.log("DETERMINED: Extents=" + extents[0] + "--" + extents[1]);
-  console.log("DETERMINED: AltExtents=" + altExtents[0] + "--" + altExtents[1]);
-  var startExtent = extents[0];
-  var endExtent = extents[1];
-  let chartIndex;
-  if (heathKitRecs) {
-    const hrRecList = Helpers.marshallHealthkitRecords('HKQuantityTypeIdentifierHeartRate', heathKitRecs);
-    const aeRecList = Helpers.marshallHealthkitRecords('HKQuantityTypeIdentifierActiveEnergyBurned', heathKitRecs);
-    const xformedAErecList = SynthUtils.xformAERecs(aeRecList); // pads out the AE records so they can be used in a Stepped Line chart
-    // See what our time range is for all records assuming AppleWatch data is good
-    const inBedSleepDataLists = Helpers.marshallHealthkitSleepRecords(heathKitRecs, startExtent, endExtent);
-    const inBedDataCount = (inBedSleepDataLists[0].length) / 2 - 1;
-    const asleepDataCount = inBedSleepDataLists[1].length;
-
-    // If we have valid AppleWatch data
-    if (inBedDataCount && asleepDataCount) {
-
-      // Only show AppleWatch data if we think we legitimately have some.   Determined by having non-zero InBed and Asleep records
-      chartIndex = gChartDiv + gChartCount++;
-      gCharts.push(addChart('Biometrics', chartIndex, CreateBioChart(chartIndex, 'Biometrics', startExtent, endExtent, hrRecList, xformedAErecList)));
-      chartIndex = gChartDiv + gChartCount++;
-      gCharts.push(addChart('', chartIndex, CreateSleepRecordsChart(chartIndex, '', startExtent, endExtent, inBedSleepDataLists[0], inBedSleepDataLists[1])));
-      chartIndex = gChartDiv + gChartCount++;
-      renderHypnoData("SleepSignal_Hypno", chartIndex, hypnoMeta, startExtent, endExtent);
-
-    } 
-    else {
-
-      // Don't have valid AppleWatch Data so recalc extents data
-      console.log("Excluding AppleWatch Data");
-      startExtent = altExtents[0];
-      endExtent = altExtents[1];
-    }
-  } else {
-    startExtent = altExtents[0];
-    endExtent = altExtents[1];
-  }
-  ["Oura", "Withings", "Fitbit", "Garmin", "Feel", "Trued"].forEach(src => {
-    chartIndex = gChartDiv + gChartCount++;
-    gCharts.push(addChart(src, chartIndex, renderHypnoData(src,chartIndex, hypnoMeta, startExtent, endExtent)));
-  });
-}
-
-function cleanUpAllCharts() {
-  console.log("CleanUpAllCharts with gChartCount =" + gChartCount);
-  // Nuke any live charts because we're about to create more....
-  gCharts.forEach(x => {
-    if (x.chart) x.chart.destroy()
-  });
-
-  // Also nuke any elements "innerHTML"
-  for (i = 1; i < gChartCount + 1; i++) {
-    Helpers.removeChartByID(gChartDiv + i);
-  }
-  gChartCount = 1;
-  gCharts = [];
-}
-
-function addChart(src, chartId, chart){
-  return {
-    source: src,
-    chartId: chartId,
-    chart: chart
-  }
-}
-
-function removeChart(source){
-  let indexToRemove;
-  for(var i = 0; i < gCharts.length; i++){
-    if(gCharts[i].source == source && gCharts[i].chart){
-      gCharts[i].chart.destroy();
-      indexToRemove = i + 1;
-      Helpers.removeChartByID(gCharts[i].chartId );
-    }
-  }
-  gCharts = Helpers.removeItemByIndex(gCharts, indexToRemove);
-  console.log("GCHARTS ", gCharts)
-}
- 
- 
-
-function renderHypnoData(source, divEl, sleepMeta, min, max) {
-  const sleepArch = Helpers.findSrc(sleepMeta, source);
-  if (sleepArch) {
-    console.log(`==> HypnoStat UTC Offset(${source})=${sleepArch.utcoffset}`);
-    console.log(`Stats for ${source}=[${Math.round(sleepArch.score)}/${Helpers.epochTimeToHours(sleepArch.timedeep)}/${Helpers.epochTimeToHours(sleepArch.timerem)}/${Helpers.epochTimeToHours(sleepArch.timeawake)}]`);
-    return CreateHypnoChart(divEl, source, min, max, sleepArch);
-  } else {
-    console.log(`NO HYPNO CHART, NO '${source}' Data`);
-    return null;
-  }
-}
 
 // Population Data Sleep Averages by Age
 sleepAvgs = [ {Age: 5, TST: 536, Deep: 193, REM: 108, Light: 235, WakeT: 6},
@@ -432,8 +395,6 @@ function calcSleepStats(sleepArch) {
   sleepArch.timerem = SynthUtils.CountStateTime("REM", h);
   sleepArch.timeawake = SynthUtils.CountStateTime("Wake", h);
 }
-
-
 
 
 

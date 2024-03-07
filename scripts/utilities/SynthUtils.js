@@ -143,6 +143,18 @@ class SynthUtils {
         return newHypno;
       }
 
+      static newFlattenStates(newHypno, amount) {
+ 
+        newHypno.forEach(function(el, index) {
+          console.log("State: " + el.x + "\n");
+          if (((el.x == 'Light') || (el.x == 'Wake')) && ((el.y[1]-el.y[0])/60000) <= amount) {
+            console.log("Flattening a state!\n");
+            if (index > 0) el.x = newHypno[index-1].x;  // set the segment name/type to be the same as the prev segment type
+          }
+        });
+        return newHypno;
+      }
+
       static findExtents(jsonHypno, isAppleWatchValid) {
         let min = Date.now();
         let max = 0;
@@ -160,9 +172,11 @@ class SynthUtils {
             }
           });
         }
-        const minimax = [min - padding, max + padding];
         console.log(`FIND EXTENTS Final Extents=[${Helpers.dateToLocalString(min)}, ${ Helpers.dateToLocalString(max)}]`);
-        return minimax;
+        return {
+          start: min - padding,
+          end: max + padding
+        };
       }
 
       static xformAERecs(recList) {
