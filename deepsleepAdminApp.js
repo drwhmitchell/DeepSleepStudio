@@ -41,7 +41,6 @@ const deepsleepAdminApp = new Vue({
       },
       selectedUser: null,
       datePickerDate: '2022-02-12',
-      chartArea: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       chartOptions:{
         dampened: false,
         trued: false,

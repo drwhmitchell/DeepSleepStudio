@@ -80,9 +80,6 @@
         <div id="sleep-data">
           <div class="card">
             <div class="card-body">
-              <!-- OLD -->
-              <div v-for="i in chartArea" v-bind:id="'chart-area' + i"></div>
-              <!-- NEW -->
               <div v-for="(chart,index) in charts">
                 <!-- HYPNO CHART -->
                 <div v-if="chart.chartType == 'hypno'">
@@ -92,6 +89,7 @@
                 <div v-if="chart.chartType == 'bio'">
                   <bio-chart :chart="chart" :index="index"></bio-chart>
                 </div>
+                <!-- RECORDS CHART -->
                 <div v-if="chart.chartType == 'sleep-records'">
                   <records-chart :chart="chart" :index="index"></records-chart>
                 </div>
