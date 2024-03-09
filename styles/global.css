@@ -9,3 +9,92 @@
     margin-bottom: 40px;
   }
   [v-cloak] { display: none; }
+
+
+
+
+  /* HYPNO RANGE */
+  .hypno-range-container{
+    width:100%; display:flex; flex-direction:row; height:200px; padding: 10px;
+  }
+
+  .hypno-stage{
+    height:100%; display: flex; flex-direction: column;
+  }
+
+  .hypno-stage > div{
+    flex:1;
+    border-top: 0px solid transparent;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: flex-start;
+  }
+
+  .stage-selected{
+    animation:  glowAnimation 1s infinite alternate ;
+  }
+
+  .hypno-stage > div:hover{
+    cursor: pointer;
+  }
+
+  .hypno-stage > div > div{
+    height:10px;
+    width:3px;
+    border-left: 3px solid transparent;
+  }
+
+  @keyframes glowAnimation {
+    0% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.hypno-stages-container{
+  width:100%;
+  border: 3px solid #F5F4F8;
+  margin-bottom: 10px;
+}
+
+.edit-stage-container{
+  width:100%;
+  margin-top: 5px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin-bottom: 5px;
+}
+
+
+.edit-stage-container > div{
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+  border: 3px solid #F5F4F8;
+}
+
+.edit-stage-container > div > div{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+  padding:10px;
+}
+
+
+.edit-stage-container > div > div > div{
+  display: flex; 
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding-right: 5px;
+  height: 43px;
+  padding-bottom: 5px;
+}

@@ -23,7 +23,7 @@ const deepsleepAdminApp = new Vue({
     return {
       // auth credentials
       ds_auth: null,
-      //ds_auth: {"result":"success","session":"12e80912-950f-4e52-7f8e-9bc403b7cdea","user":{"id":3,"uuid":"da43585a-aa16-4756-62e3-193a10fcb25e","email":"will@silvernovus.com","role":{"Int32":1,"Valid":true},"createdat":"2021-05-27T19:11:55.526684Z","name":"Will Mitchell","password":"","resetpassword":{"String":"","Valid":false},"resetuuid":{"String":"","Valid":false},"resetexpiration":{"Time":"0001-01-01T00:00:00Z","Valid":false},"lasttouch":{"Time":"2024-03-05T21:48:03.331513Z","Valid":true}}},
+      // ds_auth: {"result":"success","session":"12e80912-950f-4e52-7f8e-9bc403b7cdea","user":{"id":3,"uuid":"da43585a-aa16-4756-62e3-193a10fcb25e","email":"will@silvernovus.com","role":{"Int32":1,"Valid":true},"createdat":"2021-05-27T19:11:55.526684Z","name":"Will Mitchell","password":"","resetpassword":{"String":"","Valid":false},"resetuuid":{"String":"","Valid":false},"resetexpiration":{"Time":"0001-01-01T00:00:00Z","Valid":false},"lasttouch":{"Time":"2024-03-05T21:48:03.331513Z","Valid":true}}},
       // Login stuff
       login_params: {
         data: {
@@ -60,7 +60,6 @@ const deepsleepAdminApp = new Vue({
         if (!this.leaderboard.Leaders) {
           this.leaderboard.Leaders = [];
         }
-        console.log(JSON.stringify(this.leaderboard.Leaders))
         this.setStatusAlert('Loaded ' + this.leaderboard.Leaders.length + " customers.");
       } else {
         this.setErrorAlert("Error:  No DeepSleep Users Found!");
@@ -78,7 +77,6 @@ const deepsleepAdminApp = new Vue({
     },
     oldGetRequestOptions(requestType) {
       var headers = new Headers();
-      // console.log('AUTHORIZATION BEARER ', this.ds_auth.session)
       headers.append("Authorization", "Bearer " + this.ds_auth.session);
       return {
         method: requestType,
@@ -189,7 +187,6 @@ const deepsleepAdminApp = new Vue({
           let matches = this.leaderboard.Leaders.filter(x=>{return x.user.id == this.selectedUser.user.id});
           if(matches && matches.length > 0){
             this.selectedUser = matches[0];
-            console.log('SELECTED USER ', this.selectedUser)
             this.setStatusAlert("Loading data for " + this.selectedUser.user.name + '...')
             this.refreshUser();
           }
@@ -334,7 +331,6 @@ const deepsleepAdminApp = new Vue({
             Cookies.Erase("ds_auth");
           }
           this.ds_auth = response;
-          console.log('LOGIN RESPONSE ', JSON.stringify(response))
           this.setLeaderboard();
         }
       } 
