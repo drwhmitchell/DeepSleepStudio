@@ -11,11 +11,12 @@ const HypnoChart = Vue.component('hypno-chart', {
   data() {
     return {
       chartData: [],
-      rangeDivs: [],
+      hypno: null,
       statsList: null,
       hypnoChart: null,
       selectedStage: null,
       selectedStageIndex: null,
+      stageHeight: '15px',
       sleepStageDivs: [
         SleepStages.WAKE,
         SleepStages.REM,
@@ -29,15 +30,18 @@ const HypnoChart = Vue.component('hypno-chart', {
     index: null
   },
   mounted(){
-    if(this.chart && this.chart.sleepArch){
-      this.chartData = SynthUtils.marshallSleepNetHypno(JSON.parse(this.chart.sleepArch.hypno));
-      console.log("CHART DATA ", JSON.stringify(this.chartData));
-      this.createHypnoChart();
-      this.calcHypnoStats();
-      this.createHypnoRange();
-    }
+    this.initialize();
   },
   methods: {
+    initialize(){
+      if(this.chart && this.chart.sleepArch){
+        this.chartData = SynthUtils.marshallSleepNetHypno(JSON.parse(this.chart.sleepArch.hypno));
+        console.log("CHART DATA ", JSON.stringify(this.chartData));
+        this.createHypnoChart();
+        this.calcHypnoStats();
+        this.calcHypno();
+      }
+    },
     calcHypnoStats(){
       var h = JSON.parse(this.chart.sleepArch.hypno);
       this.statsList = [{
@@ -52,92 +56,43 @@ const HypnoChart = Vue.component('hypno-chart', {
         awakeRecalculated: Helpers.epochTimeToHours(this.chart.sleepArch.timeawake)
       }]
     },
-    createHypnoRange(){
-      let rangeContainer = document.getElementById('hypno-range' + this.index);
-      let rangeWidth = rangeContainer.offsetWidth;
-      this.rangeDivs = [];
+    calcHypno(){
       if(this.chartData && this.chartData.length > 0){
-        let sleepStart = new Date(this.chartData[0].x).getTime();
-        let sleepEnd = new Date(this.chartData[this.chartData.length - 1].x).getTime();
-        let timeBetween = sleepStart - sleepEnd;
-        for(var i = 0; i < this.chartData.length - 1; i++){
-          this.rangeDivs.push({
-            width: rangeWidth * (  (new Date(this.chartData[i].x).getTime() - new Date(this.chartData[i + 1].x).getTime())/timeBetween ),
-            color: this.getColorFromState(this.chartData[i].y),
-            startTime: new Date(this.chartData[i].x).getTime(),
-            endTime: new Date(this.chartData[i + 1].x).getTime(),
-            startTimeLabel: new Date(this.chartData[i].x).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }),
-            endTimeLabel: new Date(this.chartData[i + 1].x).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }),
-            state: this.getStateFromNum(this.chartData[i].y),
-            duration: Math.round((new Date(this.chartData[i + 1].x).getTime() - new Date(this.chartData[i].x).getTime())/60/1000),
-            stateNum:this.chartData[i].y,
-            nextStateNum: this.chartData[i + 1].y
-          });
-        }
+        this.hypno = new Hypno(this.chartData);
       }
     },
     editStage(divIndex){
-      console.log("RANGE ITEM CLICKED", this.rangeDivs[divIndex]);
-      if(this.selectedStage == this.rangeDivs[divIndex]){
-        this.cancelEditStage();
+      if(this.selectedStage || this.selectedStageIndex){
+        alert('Aready editing stage. Save or revert your changes to edit another.')
       }
       else{
-        this.selectedStageIndex = divIndex;
-        this.selectedStage = JSON.parse(JSON.stringify(this.rangeDivs[divIndex])); // deep clone if editing
-      }
+        if(this.selectedStageIndex != divIndex){
+          this.selectedStageIndex = divIndex;
+          this.selectedStage = JSON.parse(JSON.stringify( this.hypno.stages[divIndex])); // deep clone if editing
+        }
+      }  
     },
-    cancelEditStage(){
+    updateStage(){
+      console.log('UPDATE HYPNO')
+      this.hypno.updateStage(this.selectedStage, this.selectedStageIndex);
+      setTimeout(()=>{
+        this.selectedStage = JSON.parse(JSON.stringify( this.hypno.stages[this.selectedStageIndex]))
+      },10)
+    },
+    resetStage(){
+      // TODO reset stage from chart data 
       this.selectedStageIndex = null;
-      this.selectedStage = null
+      this.selectedStage = null;
+      this.hypno.reset();
     },
     saveStageEdits(){
-      if(this.rangeDivs[this.selectedStageIndex].state == this.selectedStage.stage 
-        && this.rangeDivs[this.selectedStageIndex].duration == this.selectedStage.duration){
-          this.cancelEditStage(); /// DO NOTHING, nothing changed. Don't update because duration for time is in minutes - not as accurate as actual time in DB.
-      }
-      else{
-        this.rangeDivs[this.selectedStageIndex] = this.selectedStage;
-        saveHypno();
-        this.cancelEditStage();
-        // Prop message to parent to save hypno. 
-      }
-    },
-    updateChart(){
-      var dataset = this.hypnoChart.data.datasets[0];
-      var point = dataset.data[divIndex];
-  
-      // Trigger click event through the onClick handler
-      this.hypnoChart.options.onClick.call(this.hypnoChart, {'dataIndex': divIndex}, [{datasetIndex: 0, index: divIndex, element: point}]);
-      
+      this.selectedStageIndex = null;
+      this.selectedStage = null;
+      this.saveHypno();  
     },
     saveHypno(){
+      console.log("SAVE HYPNO")
       // TODO!! Save hypno based off edits for range divs (stages) -- or start/end slider (todo)
-    },
-    getColorFromState(stateNum){
-      switch(stateNum){
-        case SleepStages.WAKE:
-        default:
-          return '#B1ADA7';
-        case SleepStages.REM:
-          return '#00AAFF'
-        case SleepStages.LIGHT: 
-          return '#2f78bf';
-        case SleepStages.DEEP:
-          return '#004099';
-      }
-    },
-    getStateFromNum(stateNum){
-      switch(stateNum){
-        case SleepStages.WAKE:
-        default:
-          return 'Wake';
-        case SleepStages.REM:
-          return 'REM'
-        case SleepStages.LIGHT: 
-          return 'Light';
-        case SleepStages.DEEP:
-          return 'Deep';
-      }
     },
     // CHART CREATORS 
     createHypnoChart(){
@@ -248,7 +203,7 @@ const HypnoChart = Vue.component('hypno-chart', {
     getBorderColor() {
       return function(item, divState) {
         if(item.stateNum == divState){
-          return `linear-gradient(to bottom, ${item.color} 10px, transparent 10px)`
+          return `linear-gradient(to bottom, ${item.color} ${this.stageHeight}, transparent ${this.stageHeight})`
         }
         else{
           return 'transparent';
@@ -256,31 +211,52 @@ const HypnoChart = Vue.component('hypno-chart', {
       }
     },
     getOuterSideBorder() {
-      return function(item, divState) {
-        let borderSizeType = '3px solid ';
-        if(item.nextStateNum > item.stateNum){
-          return (divState <= item.nextStateNum) && (divState > item.stateNum)
-          ? borderSizeType + item.color
-          : 'transparent'
+      return function(item, divState, divIndex) {
+        if(divIndex > this.hypno.length){
+          return 'none'; 
         }
         else{
-          return (divState > item.nextStateNum) && (divState <= item.stateNum)
-          ? borderSizeType + item.color
-          : 'none'
+          let borderSizeType = '3px solid ';
+          if(item.nextStateNum > item.stateNum){
+            return (divState <= item.nextStateNum) && (divState > item.stateNum)
+              ? borderSizeType + item.color
+              : 'transparent';
+          }
+          else{
+            return (divState > item.nextStateNum) && (divState <= item.stateNum)
+              ? borderSizeType + item.color
+              : 'none';
+          }
         }
       }
     },
     getInnerSideBorder(){
-      return function(item,divState){
+      return function(item,divState, divIndex){
         let borderSizeType = '3px solid ';
       if((item.nextStateNum == divState) && divState < item.stateNum){
         return borderSizeType + item.color;
+        // if(divIndex > 0){
+        //   return borderSizeType + this.hypno.stages[divIndex - 1].color;
+        // }
+        // else{
+        //   return borderSizeType + item.color;
+        // }
       }
       else{
           return 'none';
         }
       }
     }
+  },
+  watch:{
+    // selectedStage: {
+    //   deep: true,
+    //   handler: _.debounce(function () {
+    //       console.log('selectedStage CHANGE');
+    //       this.hypno.updateStage(this.selectedStage, this.selectedStageIndex);
+    //       // TODO: update to simulate change
+    //   }, 500)
+    // }
   },
   template: `
   <div>
@@ -315,12 +291,12 @@ const HypnoChart = Vue.component('hypno-chart', {
     </div>
 
 
-    <div class="hypno-stages-container">
+    <div class="hypno-stages-container" v-if="hypno && hypno.stages">
 
       <div v-bind:id="'hypno-range' + index" class="hypno-range-container">
-        <div v-for="(item, divIndex) in rangeDivs" class="hypno-stage" :style="{'width':item.width + 'px'}" v-on:click="editStage(divIndex)">
-          <div v-for="(state, stateIndex) in sleepStageDivs" :class="{'stage-selected':divIndex == selectedStageIndex }" :style="{'background': getBorderColor(item, state), 'border-right': getOuterSideBorder(item, state) }">
-            <div :style="{'border-right': getInnerSideBorder(item, state) }"></div>
+        <div v-for="(item, divIndex) in hypno.stages" class="hypno-stage" :style="{'flex':item.width }"  v-on:click="editStage(divIndex)">
+          <div v-for="(state, stateIndex) in sleepStageDivs" :class="{'stage-selected':divIndex == selectedStageIndex }" :style="{'background': getBorderColor(item, state), 'border-right': getOuterSideBorder(item, state, divIndex) }">
+            <div :style="{'border-right': getInnerSideBorder(item, state, divIndex) }"></div>
           </div>
         </div>
       </div>
@@ -335,12 +311,12 @@ const HypnoChart = Vue.component('hypno-chart', {
             <div>Started:</div>
             <div>Ended:</div>
             <div>
-              <button class="btn btn-txt" v-on:click="cancelEditStage()">Cancel</button>
+              <button class="btn btn-txt" v-on:click="resetStage()">Cancel</button>
             </div>
           </div>
           <div>
             <div>
-              <select class="form-control" v-model="selectedStage.state">
+              <select class="form-control" v-on:change="updateStage()" v-model="selectedStage.state">
                 <option>Light</option>
                 <option>Deep</option>
                 <option>REM</option>
@@ -348,7 +324,7 @@ const HypnoChart = Vue.component('hypno-chart', {
               </select>
             </div>
             <div>
-              <input class="form-control" min="0" type="number" v-model="selectedStage.duration"/> <span style="padding-left:5px">mins</span>
+              <input type="number" class="form-control" min="0" type="number" v-on:change="updateStage()" v-model="selectedStage.duration"/> <span style="padding-left:5px">mins</span>
             </div>
             <div>{{selectedStage.startTimeLabel}}</div>
             <div>{{selectedStage.endTimeLabel}} </div>
