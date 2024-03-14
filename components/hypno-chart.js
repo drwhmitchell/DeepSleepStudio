@@ -1,11 +1,11 @@
+
+
 const SleepStages = Object.freeze({
   WAKE: 4,
   REM: 3,
   LIGHT:2,
   DEEP: 1
 });
-
-
 
 const HypnoChart = Vue.component('hypno-chart', {
   data() {
@@ -39,7 +39,7 @@ const HypnoChart = Vue.component('hypno-chart', {
         console.log("CHART DATA ", JSON.stringify(this.chartData));
         this.createHypnoChart();
         this.calcHypnoStats();
-        this.calcHypno();
+        // this.calcHypno();
       }
     },
     calcHypnoStats(){
