@@ -88,4 +88,71 @@ class Helpers{
         let chartHTML = document.getElementById(chart_id);
         chartHTML.innerHTML = "";
       }
+
+
+      static getClosestHourBeforeEpochTime(epochTime){
+        // Convert given epoch time to milliseconds
+        let givenTime = new Date(epochTime);
+
+        // Set the minutes and seconds to 0 to get the start of the hour
+        givenTime.setMinutes(0);
+        givenTime.setSeconds(0);
+
+        // Subtract 1 hour in milliseconds
+        let oneHourBeforeStartOfHour = new Date(givenTime.getTime());
+
+        // Return the closest epoch time 1 hour before the start of the hour in milliseconds
+        return oneHourBeforeStartOfHour.getTime();
+      }
+      static getClosestHourAfterEpochTime(epochTime){
+        // Convert given epoch time to milliseconds
+        let givenTime = new Date(epochTime);
+
+        // Set the minutes and seconds to 0 to get the start of the hour
+        givenTime.setMinutes(0);
+        givenTime.setSeconds(0);
+
+        // Subtract 1 hour in milliseconds
+        let oneHourAfterStartOfHour = new Date(givenTime.getTime() + (60 * 60 * 1000));
+
+        // Return the closest epoch time 1 hour before the start of the hour in milliseconds
+        return oneHourAfterStartOfHour.getTime();
+      }
+
+      static getHoursBetweenEpochTimes(startTime, endTime) {
+        let hoursArray = [];
+    
+        // Convert epoch times to Date objects
+        let startDate = new Date(startTime);
+        let endDate = new Date(endTime);
+    
+        // Iterate through each hour between the start and end times
+        let currentHour = new Date(startDate);
+        while (currentHour <= endDate) {
+            // Format the current hour as HH:MM AM/PM
+            let formattedHour = currentHour.toLocaleString('en-US', {
+                hour: 'numeric',
+                hour12: true
+            });
+            
+            // Add the formatted hour to the array
+            hoursArray.push(formattedHour);
+    
+            // Move to the next hour
+            currentHour.setTime(currentHour.getTime() + (60 * 60 * 1000));
+        }
+    
+        return hoursArray;
+    }
+
+    static convertMinutesToHHMM(minutes) {
+      var hours = Math.floor(minutes / 60);
+      var remainingMinutes = minutes % 60;
+  
+      var hoursString = String(hours).padStart(2, '0');
+      var minutesString = String(remainingMinutes).padStart(2, '0');
+  
+      return hoursString + ':' + minutesString;
+  }
+    
 }

@@ -56,7 +56,7 @@ class HypnoStage {
         this.endTime += durationDeltaMs;
         this.setStartEndLabels();
         this.width = this.width * (stageEdits.duration/ this.duration);
-        this.duration = stageEdits.duration;
+        this.duration = Number(stageEdits.duration);
       }
     };
 

@@ -12,12 +12,18 @@
 
 
 
-
-  /* HYPNO RANGE */
+  /**************************************************************************************************************/ 
+  /* EDIT HYPNO APP!! */
+  /**************************************************************************************************************/ 
   .hypno-range-container{
-    width:100%; display:flex; flex-direction:row; height:200px; padding: 10px;
+    width:100%; display:flex; flex-direction:row; height:40vh;
   }
 
+  .hypno-range{
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+  }
   .hypno-stage{
     height:100%; display: flex; flex-direction: column;
   }
@@ -57,8 +63,10 @@
 
 .hypno-stages-container{
   width:100%;
-  border: 3px solid #F5F4F8;
   margin-bottom: 10px;
+  padding:5px;
+  display: flex;
+  flex-direction: row;
 }
 
 .edit-stage-container{
@@ -98,3 +106,90 @@
   height: 43px;
   padding-bottom: 5px;
 }
+
+
+
+
+.hypno-yaxis-container{
+  padding-right: 5px;
+  border-right: 5px solid #cacaca90 ;
+  display: flex;
+  flex-direction: column;
+  height:40vh;
+}
+
+.hypno-yaxis-container > div{
+  flex:1; 
+  align-items: flex-start;
+  font-weight: bold;
+}
+
+
+.hypno-range-container-outer{
+  display: flex;
+  flex-direction: column;
+  flex:1;
+}
+
+.hypno-xaxis-container{
+  border-top: 5px solid #cacaca90 ;
+  margin-top: -4px;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.hypno-xaxis-container > div{
+  flex:1;
+  text-align: center;
+}
+
+.hypno-title-container{
+  display: flex; flex-direction: row; align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #cacaca90;
+}
+
+.hypno-title{
+  flex: 1;
+  text-align: center;
+}
+
+
+.hypno-ksis-container{
+  display: flex;
+  flex-direction: row;
+  border: 5px solid #cacaca90;
+  border-right: none;
+}
+
+.hypno-ksis-container > div{
+  flex:1;
+  border-right: 5px solid #cacaca90;
+}
+
+.hypno-ksi-container{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.hypno-ksi-container{
+  padding:5px;
+}
+.hypno-ksi-container > div:last-child{
+  flex:2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.hypno-ksi-container > div:first-child{
+  flex:1;
+  align-items: center !important;
+}
+
+

@@ -20,83 +20,75 @@
 </head>
 
 <body style="background-color: #F1F1F1;">
+  <!-- ADMIN APP (DATA VIEW ONLY )-->
   <div id="deepsleepAdminApp">
     <div v-cloak>
       <!-- AUTHORIZED (DASH) -->
-      <div class="container-fluid" v-if="isAuthorized">
-        <div id="control-panel">
-          <br>
-          <div class="card">
-            <div class="card-body">
-              <div class="row" style="display: flex; flex-direction: row; align-items: center;">
-                <div class="col-sm-6 col-md-2" style="padding-top: 5px;">
-                  <input v-model="datePickerDate" class="form-control" type="date" id="myDate" value="2022-02-12" v-on:change="changeDate()">
-                </div>
-                <div class="col-sm-6 col-md-2" style="padding-top: 5px;">
-                  <select v-model="selectedUser" name="user-select" class="form-control"  v-on:change="refreshUser()">
-                    <option v-for="leader in leaderboard.Leaders" v-bind:value="leader" v-bind:disabled="!(leader.sessions && leader.sessions.length > 0)">
-                      {{leader.user.name}} {{!(leader.sessions && leader.sessions.length > 0) ? ' (No Sessions found) ' : ''}}
-                    </option>
-                  </select>
-                </div>
-                <div class="col-sm-12 col-md-5" style="padding-top: 5px;">
-                  <div class="alert alert-primary" v-if="alert && alert.message" role="alert">{{alert.message}}</div>
-                </div>
-                <div class="col-sm-12 col-md-3">
-                  <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <span id="currentUserBadge" style="flex:1;" v-if="ds_auth">
-                      Logged in as 
-                      <br>
-                      {{ds_auth.user.email}}
-                    </span>
-                    <button type="button" style="flex:1;" class="btn btn-danger" v-on:click="logout()">Logout</button>
-                  </div>
+      <div class="container-fluid" v-if="isAuthorized && view == 'data'">
+        <div class="card">
+          <div class="card-body">
+            <div class="row" style="display: flex; flex-direction: row; align-items: center;">
+              <div class="col-sm-6 col-md-2" style="padding-top: 5px;">
+                <input v-model="datePickerDate" class="form-control" type="date" id="myDate" value="2022-02-12" v-on:change="changeDate()">
+              </div>
+              <div class="col-sm-6 col-md-2" style="padding-top: 5px;">
+                <select v-model="selectedUser" name="user-select" class="form-control"  v-on:change="refreshUser()">
+                  <option v-for="leader in leaderboard.Leaders" v-bind:value="leader" v-bind:disabled="!(leader.sessions && leader.sessions.length > 0)">
+                    {{leader.user.name}} {{!(leader.sessions && leader.sessions.length > 0) ? ' (No Sessions found) ' : ''}}
+                  </option>
+                </select>
+              </div>
+              <div class="col-sm-12 col-md-5" style="padding-top: 5px;">
+                <div class="alert alert-primary" v-if="alert && alert.message" role="alert">{{alert.message}}</div>
+              </div>
+              <div class="col-sm-12 col-md-3">
+                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                  <span id="currentUserBadge" style="flex:1;" v-if="ds_auth">
+                    Logged in as 
+                    <br>
+                    {{ds_auth.user.email}}
+                  </span>
+                  <button type="button" style="flex:1;" class="btn btn-danger" v-on:click="logout()">Logout</button>
                 </div>
               </div>
-              <div class="row">
-                <div class="col">
-                <button type="button" class="btn btn-primary"  v-on:click="refreshUser()">Refresh</button>
-              </div>
+            </div>
+            <div class="row">
               <div class="col">
-               <input id="flattened" name="flattened" type="checkbox" v-model="chartOptions.dampened"  v-on:change="flattenMovement()"> 
-               <label id="flattened-label" for="flattened">Dampened</label>  
-                <label>&nbsp&nbsp</label>     
-                <input id="trued" name="trued" type="checkbox" v-model="chartOptions.trued"  v-on:change="trueTrue()"> 
-                <label id="trued-label" for="trued">Trued</label>     
-                <label>&nbsp&nbsp</label>     
-                <input id="synthesize" name="synthesize" type="checkbox" v-model="chartOptions.synthesized"  v-on:change="synthSleep()"> 
-                <label id="synthesize-label" for="synthesize">Synthesized</label>     
-              </div>
-              <!-- <div class="col">              
-                <button type="button" class="btn btn-secondary"  onclick="findLatest()">Find Last</button>
-                <button type="button" class="btn btn-secondary"  onclick="findWhack2Models()">Compare</button>
-              </div> -->
-            
-              </div>
+              <button type="button" class="btn btn-primary"  v-on:click="refreshUser()">Refresh</button>
+            </div>
+            <div class="col">
+             <input id="flattened" name="flattened" type="checkbox" v-model="chartOptions.dampened"  v-on:change="flattenMovement()"> 
+             <label id="flattened-label" for="flattened">Dampened</label>  
+              <label>&nbsp&nbsp</label>     
+              <input id="trued" name="trued" type="checkbox" v-model="chartOptions.trued"  v-on:change="trueTrue()"> 
+              <label id="trued-label" for="trued">Trued</label>     
+              <label>&nbsp&nbsp</label>     
+              <input id="synthesize" name="synthesize" type="checkbox" v-model="chartOptions.synthesized"  v-on:change="synthSleep()"> 
+              <label id="synthesize-label" for="synthesize">Synthesized</label>     
+            </div>
             </div>
           </div>
         </div>
-        <br>
-        <div id="sleep-data">
-          <div class="card">
-            <div class="card-body">
-              <div v-for="(chart,index) in charts">
-                <!-- HYPNO CHART -->
-                <div v-if="chart.chartType == 'hypno'">
-                  <hypno-chart :chart="chart" :index="index"></hypno-chart>
-                </div>
-                <!-- BIO CHART -->
-                <div v-if="chart.chartType == 'bio'">
-                  <bio-chart :chart="chart" :index="index"></bio-chart>
-                </div>
-                <!-- RECORDS CHART -->
-                <div v-if="chart.chartType == 'sleep-records'">
-                  <records-chart :chart="chart" :index="index"></records-chart>
-                </div>
+        <div class="card" v-if="selectedUser && view == 'data'" style="margin-top: 10px;">
+          <!-- DATA -->
+          <div class="card-body">
+            <div v-for="(chart,index) in charts">
+              <!-- HYPNO CHART -->
+              <div v-if="chart.chartType == 'hypno'">
+                <hypno-chart :chart="chart" :index="index"></hypno-chart>
+                <button class="btn btn-primary" v-if="chart.isEditable" v-on:click="editChart(index)">Edit</button>
               </div>
-
+              <!-- BIO CHART -->
+              <div v-if="chart.chartType == 'bio'">
+                <bio-chart :chart="chart" :index="index"></bio-chart>
+              </div>
+              <!-- RECORDS CHART -->
+              <div v-if="chart.chartType == 'sleep-records'">
+                <records-chart :chart="chart" :index="index"></records-chart>
+              </div>
             </div>
           </div>
+
         </div>
       </div>
       <!-- NOT AUTHORIZED (LOGIN) -->
@@ -151,6 +143,100 @@
       </div>
     </div>
   </div>
+
+  
+    <!-- APP FOR EDITING DATA  -->
+    <div id="editHypnoApp" class="container-fluid">
+      <div class="card" style="margin-top: 10px;" v-if="hypno">
+        <div class="card-body">
+
+          <div class="hypno-title-container">
+            <button class="btn btn-default" v-on:click="goBack()">
+              <i class="fas fa-angle-left	"></i>
+            </button>
+            <div class="hypno-title">
+              <h3 v-if="chart">Editing {{chart.name}}</h3>
+            </div>
+          </div>
+
+          <div class="hypno-stages-container" v-if="hypno && hypno.stages">
+            <!-- Y AXIS -->
+            <div class="hypno-yaxis-container">
+              <div v-for="(stage,stageIndex) in stages">
+                {{stage.name}}
+              </div>
+            </div>
+            <!-- HYPNO  / X AXIS -->
+            <div class="hypno-range-container-outer">
+              <div class="hypno-range-container">
+                <div id="hypno-start-buffer" v-bind:style="{'flex': hypnoStartFlex()}"></div>
+                <div class="hypno-range" v-bind:style="{'flex': hypnoFlex()}">
+                  <div v-for="(item, divIndex) in hypno.stages" class="hypno-stage" :style="{'flex':item.width }"  v-on:click="editStage(divIndex)">
+                    <div v-for="(stage, stageIndex) in stages" :class="{'stage-selected':divIndex == selectedStageIndex }" :style="{'background': stageBackground(item, stage.enum), 'border-right': stageOuterRightBorder(item, stage.enum, divIndex)}">
+                      <div :style="{'border-right': stageInnerRightBorder(item, stage.enum) }"></div>
+                    </div>
+                  </div>
+                </div>
+                <div id="hypno-end-buffer" v-bind:style="{'flex': hypnoEndFlex()}"></div>
+              </div>
+              <div class="hypno-xaxis-container">
+                <div v-for="(label, labelIndex) in xAxis.labels">
+                  {{label}}
+                </div>
+              </div>
+            </div>
+    
+          </div>
+
+          <div class="hypno-ksis-container">
+            <div v-for="(ksi, stageIndex) in hypno.ksis" class="hypno-ksi-container">
+              <div>{{ksi.name}}</div>
+              <div>
+                <div>Projected: {{ksi.duration}}</div>
+                <div>Stored: {{ksi.stored}}</div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="selectedStage" class="edit-stage-container">
+            <h5><b>EDIT STAGE</b></h5>
+            <div>
+              <div>
+              <div>Stage:</div>
+                <div>Duration:</div>
+                <div>Started:</div>
+                <div>Ended:</div>
+                <div>
+                  <button class="btn btn-txt" v-on:click="resetStage()">Cancel</button>
+                </div>
+              </div>
+              <div>
+                <div>
+                  <select class="form-control" v-on:change="updateStage()" v-model="selectedStage.state">
+                    <option>Light</option>
+                    <option>Deep</option>
+                    <option>REM</option>
+                    <option>Wake</option>
+                  </select>
+                </div>
+                <div>
+                  <input class="form-control" min="0" type="number" step="1" v-on:change="updateStage()" v-model="selectedStage.duration"/> <span style="padding-left:5px">mins</span>
+                </div>
+                <div>{{selectedStage.startTimeLabel}}</div>
+                <div>{{selectedStage.endTimeLabel}} </div>
+                <div style="width:100%; justify-content:flex-end">
+                  <button class="btn btn-success" v-on:click="saveStageEdits()">Save</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+
+
       <!-- Bootstrap JS -->
       <script src="scripts/resources/jquery.min.js"></script>
       <script src="scripts/resources/lodash.min.js"></script>
@@ -165,6 +251,8 @@
       <script src="components/hypno-chart.js"></script>
       <script src="components/bio-chart.js"></script>
       <script src="components/records.chart.js"></script>
+      <script src="services/HypnoData.js"></script>
       <script src="deepsleepAdminApp.js"></script>
+      <script src="editHypnoApp.js"></script>
 </body>
 </html>

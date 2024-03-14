@@ -1,6 +1,10 @@
 //******************************************************************************************************
 // VUE APP
 //******************************************************************************************************
+
+// USE TO SEND DATA 
+const messenger = new Vue();
+
 const deepsleepAdminApp = new Vue({
   el: '#deepsleepAdminApp',
   components:{
@@ -18,6 +22,9 @@ const deepsleepAdminApp = new Vue({
     if(this.ds_auth){
       this.setLeaderboard();
     }
+    messenger.$on('go-back', ()=>{
+      this.view = 'data';
+    })
   },
   data() {
     return {
@@ -25,6 +32,7 @@ const deepsleepAdminApp = new Vue({
       ds_auth: null,
       //ds_auth: {"result":"success","session":"12e80912-950f-4e52-7f8e-9bc403b7cdea","user":{"id":3,"uuid":"da43585a-aa16-4756-62e3-193a10fcb25e","email":"will@silvernovus.com","role":{"Int32":1,"Valid":true},"createdat":"2021-05-27T19:11:55.526684Z","name":"Will Mitchell","password":"","resetpassword":{"String":"","Valid":false},"resetuuid":{"String":"","Valid":false},"resetexpiration":{"Time":"0001-01-01T00:00:00Z","Valid":false},"lasttouch":{"Time":"2024-03-05T21:48:03.331513Z","Valid":true}}},
       // Login stuff
+      view: 'data',
       login_params: {
         data: {
           email: null,
@@ -51,7 +59,12 @@ const deepsleepAdminApp = new Vue({
     };
   },
   methods: {
-    // App
+    editChart(chartIndex){
+      console.log('EDITING CHART ', this.charts[chartIndex]);
+      HypnoData.put(this.charts[chartIndex]);
+      messenger.$emit('edit-hypno');
+      this.view = 'edit';
+    },
     async setLeaderboard() {
       this.setStatusAlert('...Loading Customer Data...');
       const leaderboard = await this.fetchLeaderboard();
@@ -90,7 +103,9 @@ const deepsleepAdminApp = new Vue({
         chartName: name,
         sleepExtents: extents,
         sleepArch: sleepArch,
-        chartType: 'hypno'
+        chartType: 'hypno',
+        isEditable: name && name.toLowerCase() == 'trued',
+        name: name + ' hypno for ' + this.selectedUser.user.name + ' on ' + this.datePickerDate
       });
     },
     addBioChart(name, extents, hrData, aeData){
