@@ -18,7 +18,7 @@ var editHypnoApp = new Vue({
             hypnoChart: null,
             selectedStage: null,
             selectedStageIndex: null,
-            stageHeight: '15px',
+            stageHeight: '20px',
             stages:[
               { name: "Wake", enum: SleepStages.WAKE },
               { name: "REM", enum: SleepStages.REM},
@@ -68,8 +68,8 @@ var editHypnoApp = new Vue({
             }
           },
           initializeAxis(){
-            this.xAxis.start     = Helpers.getClosestHourBeforeEpochTime(this.chartData[0].x);
-            this.xAxis.end       = Helpers.getClosestHourAfterEpochTime(this.chartData[this.chartData.length - 1].x);
+            this.xAxis.start     = Helpers.getNHoursBeforeEpochTime(2, this.chartData[0].x);
+            this.xAxis.end       = Helpers.getNHoursAfterEpochTime(2, this.chartData[this.chartData.length - 1].x);
             this.xAxis.labels    = Helpers.getHoursBetweenEpochTimes(this.xAxis.start, this.xAxis.end );
             this.xAxis.duration  = this.xAxis.end - this.xAxis.start;
           },
@@ -122,12 +122,12 @@ var editHypnoApp = new Vue({
                 let borderSizeType = '3px solid ';
                 if(item.nextStateNum > item.stateNum){
                   return (divState <= item.nextStateNum) && (divState > item.stateNum)
-                    ? borderSizeType + item.color
+                    ? borderSizeType + item.color + '70'
                     : 'transparent';
                 }
                 else{
                   return (divState > item.nextStateNum) && (divState <= item.stateNum)
-                    ? borderSizeType + item.color
+                    ? borderSizeType + item.color+ '70'
                     : 'none';
                 }
               }
@@ -136,10 +136,20 @@ var editHypnoApp = new Vue({
           stageInnerRightBorder(){
             return function(item,divState){
               let borderSizeType = '3px solid ';
-            if((item.nextStateNum == divState) && divState < item.stateNum){
-              return borderSizeType + item.color;
+              if((item.nextStateNum == divState)){
+                return borderSizeType + item.nextStateColor;
+              }
+              else{
+                return 'none';
+              }
             }
-            else{
+          },
+          stageInnerMargin(){
+            return function(item, divState){
+              if((item.nextStateNum == divState) && divState > item.stateNum){
+                return '-3px';
+              }
+              else{
                 return 'none';
               }
             }
@@ -156,7 +166,7 @@ var editHypnoApp = new Vue({
             return function(){
               if(this.chartData){
                 let hypno_duration = this.chartData[this.chartData.length - 1].x - this.chartData[0].x;
-                return this.xAxis.duration/hypno_duration;
+                return hypno_duration/this.xAxis.duration;
               }
             }
           },

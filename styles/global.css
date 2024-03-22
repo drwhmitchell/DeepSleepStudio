@@ -47,7 +47,7 @@
   }
 
   .hypno-stage > div > div{
-    height:15px; /* MUST BE SAME AS STAGE HEIGHT */
+    height:20px; /* MUST BE SAME AS STAGE HEIGHT */
     width:3px;
     border-left: 3px solid transparent;
   }

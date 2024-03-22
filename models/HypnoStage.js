@@ -11,6 +11,7 @@ class HypnoStage {
     state;
     stateEnum;
     nextStateEnum;
+    nextStateColor;
     sleepDuration
 
     constructor(current,next, sleep_duration) {  // current state, next state
@@ -23,6 +24,7 @@ class HypnoStage {
         this.duration       = Math.round((new Date(next.x).getTime() - new Date(current.x).getTime())/60/1000); // DURATION IN MINS 
         this.stateNum       = current.y;
         this.nextStateNum   = next.y;
+        this.nextStateColor = this.getColorFromState(next.y)
         this.setStartEndLabels();
     };
 
@@ -34,7 +36,8 @@ class HypnoStage {
     }
 
     updateNextStageState(nextStage){  // Args = HypnoStage 
-      this.nextStateNum = nextStage.stateNum;
+      this.nextStateNum   = nextStage.stateNum;
+      this.nextStateColor = this.getColorFromState(nextStage.stateNum)
     }
 
     updateTime(durationDeltaMins, newSleepDuration){ // Update everything related to time from duration delta;

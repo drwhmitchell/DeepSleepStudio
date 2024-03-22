@@ -33,27 +33,29 @@ class Hypno {
         }
     };
     setStoredKsis(sleepArch){
+        // IGNORE SLEEP ARCH FOR NOW. USE ESTIMATES 
         this.ksis.forEach(x=>{
-            let durationMs = 0;
-            switch(x.name){
-                case 'Wake':
-                    durationMs = sleepArch.timeawake + sleepArch.sleeponset;
-                    break;
-                case 'Light':
-                    durationMs = sleepArch.timelight;
-                    break;
-                case 'REM':
-                    durationMs = sleepArch.timerem;
-                    break;
-                case "Deep":
-                    durationMs = sleepArch.timedeep;
-                    break;
-                case "Total":
-                    durationMs = sleepArch.tst;
-                    break;
-            }
-            let durationMin = durationMs/60000;
-            x.stored = Helpers.convertMinutesToHHMM(durationMin);
+            x.stored = x.duration;
+            // let durationMs = 0;
+            // switch(x.name){
+            //     case 'Wake':
+            //         durationMs = sleepArch.timeawake + sleepArch.sleeponset;
+            //         break;
+            //     case 'Light':
+            //         durationMs = sleepArch.timelight;
+            //         break;
+            //     case 'REM':
+            //         durationMs = sleepArch.timerem;
+            //         break;
+            //     case "Deep":
+            //         durationMs = sleepArch.timedeep;
+            //         break;
+            //     case "Total":
+            //         durationMs = sleepArch.tst;
+            //         break;
+            // }
+            // let durationMin = durationMs/60000;
+            // x.stored = Helpers.convertMinutesToHHMM(durationMin);
         })
     }
     setSleep(){
@@ -96,19 +98,24 @@ class Hypno {
     updateStage(stage,index){ // stage = HypnoStage being updated. Index = index of stage being updated
         let hasStageBefore = index > 0;
         let hasStageAfter  = index < (this.stages.length - 1);
+        let durationDeltaMins;
+        let stageBefore = JSON.parse(JSON.stringify(this.stages[index]));
         this.stages[index].updateFromEdits(stage);
         if(hasStageBefore){
             this.stages[index - 1].updateNextStageState(this.stages[index])
         }
         if(hasStageAfter){
-            let durationDeltaMins = stage.duration - this.stages[index].duration;
-            console.log("DURATION DELTA ", this.stages[index].duration)
+            durationDeltaMins = stage.duration - stageBefore.duration;
+            console.log("NEW STAGE DURATION ", stage.duration);
+            console.log("DURATION ", stageBefore.duration)
+            console.log("DURATION DELTA MINS ", durationDeltaMins)
             if(durationDeltaMins != 0){
-                for(var i = index; i < this.stages.length; i++){
+                for(var i = (index + 1); i < this.stages.length; i++){
                     this.stages[i].updateTime(durationDeltaMins, this.sleep.duration);
                 }
             }
         }
+        // this.updateSleepFromStageDurationChange(durationDeltaMins);
         this.calcKsis();
 
     };
