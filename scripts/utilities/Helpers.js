@@ -90,30 +90,30 @@ class Helpers{
       }
 
 
-      static getClosestHourBeforeEpochTime(epochTime){
+      static getNHoursBeforeEpochTime(hours, epochTime){
         // Convert given epoch time to milliseconds
         let givenTime = new Date(epochTime);
 
         // Set the minutes and seconds to 0 to get the start of the hour
-        givenTime.setMinutes(0);
-        givenTime.setSeconds(0);
+        // givenTime.setMinutes(0);
+        // givenTime.setSeconds(0);
 
         // Subtract 1 hour in milliseconds
-        let oneHourBeforeStartOfHour = new Date(givenTime.getTime());
+        let oneHourBeforeStartOfHour = new Date(givenTime.getTime() - (60 * hours * 60 * 1000));;
 
         // Return the closest epoch time 1 hour before the start of the hour in milliseconds
         return oneHourBeforeStartOfHour.getTime();
       }
-      static getClosestHourAfterEpochTime(epochTime){
+      static getNHoursAfterEpochTime(hours, epochTime){
         // Convert given epoch time to milliseconds
         let givenTime = new Date(epochTime);
 
         // Set the minutes and seconds to 0 to get the start of the hour
-        givenTime.setMinutes(0);
-        givenTime.setSeconds(0);
+        // givenTime.setMinutes(0);
+        // givenTime.setSeconds(0);
 
         // Subtract 1 hour in milliseconds
-        let oneHourAfterStartOfHour = new Date(givenTime.getTime() + (60 * 60 * 1000));
+        let oneHourAfterStartOfHour = new Date(givenTime.getTime() + (60 *  hours * 60 * 1000));
 
         // Return the closest epoch time 1 hour before the start of the hour in milliseconds
         return oneHourAfterStartOfHour.getTime();

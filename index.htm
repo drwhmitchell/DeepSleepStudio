@@ -173,7 +173,7 @@
                 <div class="hypno-range" v-bind:style="{'flex': hypnoFlex()}">
                   <div v-for="(item, divIndex) in hypno.stages" class="hypno-stage" :style="{'flex':item.width }"  v-on:click="editStage(divIndex)">
                     <div v-for="(stage, stageIndex) in stages" :class="{'stage-selected':divIndex == selectedStageIndex }" :style="{'background': stageBackground(item, stage.enum), 'border-right': stageOuterRightBorder(item, stage.enum, divIndex)}">
-                      <div :style="{'border-right': stageInnerRightBorder(item, stage.enum) }"></div>
+                      <div style="z-index: 10;" :style="{'border-right': stageInnerRightBorder(item, stage.enum), 'margin-right':stageInnerMargin(item, stage.enum) }"></div>
                     </div>
                   </div>
                 </div>
@@ -192,8 +192,8 @@
             <div v-for="(ksi, stageIndex) in hypno.ksis" class="hypno-ksi-container">
               <div>{{ksi.name}}</div>
               <div>
-                <div>Projected: {{ksi.duration}}</div>
-                <div>Stored: {{ksi.stored}}</div>
+                <div>Trued: {{ksi.duration}}</div>
+                <div>Projected: {{ksi.stored}}</div>
               </div>
             </div>
           </div>
