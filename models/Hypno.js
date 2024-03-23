@@ -10,11 +10,11 @@ class Hypno {
     };
     stages = [];
     ksis = [
-        {name: "Wake",  duration: null, stored: null},
-        {name: "Light", duration: null, stored: null},
-        {name: "REM",   duration: null, stored: null},
-        {name: "Deep",  duration: null, stored: null},
-        {name: "Total",  duration: null, stored: null}
+        {name: "Wake",  duration: null, stored: null,  color: '#B1ADA7'},
+        {name: "Light", duration: null, stored: null,  color: '#2f78bf'},
+        {name: "REM",   duration: null, stored: null,  color: '#00AAFF'},
+        {name: "Deep",  duration: null, stored: null,  color: '#004099'},
+        {name: "Total",  duration: null, stored: null, color: 'transparent'}
     ];
 
     constructor(raw_hypno_data, sleepArch) {  //[{"x":"2024-03-10T07:16:05.000Z","y":4},{"x":"2024-03-10T07:51:05.000Z","y":2},...] raw data = x: start time of stage, y: enum for stage
